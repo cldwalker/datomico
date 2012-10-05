@@ -1,6 +1,6 @@
 (defproject datomic-simple "0.1.0"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :description "Use datomic with less cognitive overhead"
+  :url "http://github.com/cldwalker/datomic-simple"
+  :license {:name "The MIT License"
+            :url "https://en.wikipedia.org/wiki/MIT_License"}
   :dependencies [[org.clojure/clojure "1.4.0"]])
