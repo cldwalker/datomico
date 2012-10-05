@@ -59,6 +59,24 @@
   (prn "Transacting..." tx)
   @(transact tx))
 
+(defn load-schemas [uri schemas]
+  (binding [*connection* (d/connect uri)]
+    (transact! (flatten schemas))))
+
+(defn- add-new-id [attr]
+  (merge {:db/id (d/tempid :db.part/user)} attr))
+
+(defn load-seed-data [uri data]
+   (binding [*connection* (d/connect uri)]
+    (transact! (map add-new-id (flatten data)))))
+
+(defn start [{:keys [uri schemas seed-data]}]
+  (init uri)
+  (when (seq schemas)
+    (load-schemas uri schemas))
+  (when (seq seed-data)
+    (load-seed-data uri seed-data)))
+
 (defn num-id [id]
   (Long. id))
 
@@ -98,6 +116,12 @@
   (->> oldmap
     (map (fn [[key val]] [(kfn key) val])) flatten (apply hash-map)))
 
+(defn namespace-keys [nsp attr]
+  (map-keys attr #(keyword (name nsp) (name %))))
+
+(defn build-seed-data [nsp attrs]
+  (map (partial namespace-keys nsp) attrs))
+
 (defn localize-attr [attr]
   (map-keys attr #(keyword (name %))))
 
@@ -106,9 +130,6 @@
 
 (defn local-find-id [id]
   (if-let [m (find-id id)] (localize-attr m)))
-
-(defn namespace-keys [nsp attr]
-  (map-keys attr #(keyword (name nsp) (name %))))
 
 (defn local-find-by [nsp query-map]
   (map localize-attr (find-by (namespace-keys nsp query-map))))
@@ -120,8 +141,7 @@
   (first (local-find-by nsp query-map)))
 
 (defn build-attr [nsp attr]
-  (->> (namespace-keys nsp attr)
-    (merge {:db/id (d/tempid :db.part/user)})))
+  (add-new-id (namespace-keys nsp attr)))
 
 (defn create [nsp attr]
   (transact! [(build-attr nsp attr)]))
