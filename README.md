@@ -48,3 +48,6 @@ Creation, updating, deleting and querying should be easy:
 ## Credits
 * @relevance for fridays!
 * @bobby for much of the initial abstraction - https://gist.github.com/3150938
+
+## Links
+* [Sample blog using datomic-simple](https://github.com/cldwalker/datomic-noir-blog)
