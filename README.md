@@ -24,6 +24,10 @@ Setup should be easy:
 ; or adding middleware (if using noir)
 (db/start {:uri "datomic:mem://my-app"
            :schemas [user-schema]})
+
+; Starting in a repl is just as easy, a uri will be auto-generated
+(db/start {:repl true
+           :schemas [user-schema]})
 ```
 
 Creation, updating, deleting and querying should be easy:

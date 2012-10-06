@@ -2,6 +2,7 @@
   (:require [datomic.api :as d]
             clojure.string))
 
+(def ^:dynamic *uri*)
 (def ^:dynamic *connection*)
 (def ^:dynamic *db*)
 
@@ -44,11 +45,7 @@
                         ["]"]))]
     (apply find-all query-string (flatten (vec query-map)))))
 
-(defn init [uri]
-  (d/delete-database uri)
-  (d/create-database uri))
-
-(defn repl-init [uri]
+(defn- repl-init [uri]
   (def ^:dynamic *connection* (d/connect uri))
   (def ^:dynamic *db* (d/db *connection*)))
 
@@ -70,17 +67,24 @@
    (binding [*connection* (d/connect uri)]
     (transact! (map add-new-id (flatten data)))))
 
-(defmacro add-noir-middleware [uri]
+(defmacro ^:private add-noir-middleware [uri]
   `(noir.server/add-middleware wrap-datomic ~uri))
 
-(defn start [{:keys [uri schemas seed-data]}]
-  (init uri)
-  (when (seq schemas)
-    (load-schemas uri schemas))
-  (when (seq seed-data)
-    (load-seed-data uri seed-data))
-  (when (some #{"noir.server"} (map str (all-ns)))
-    (add-noir-middleware uri)))
+(defn rand-connection []
+  (str "datomic:mem://" (java.util.UUID/randomUUID)))
+
+(defn start [{:keys [uri schemas seed-data repl]}]
+  (let [uri (or uri (rand-connection))]
+    (def ^:dynamic *uri* uri)
+    (d/create-database uri)
+    (when (seq schemas)
+      (load-schemas uri schemas))
+    (when (seq seed-data)
+      (load-seed-data uri seed-data))
+    (when (some #{"noir.server"} (map str (all-ns)))
+      (add-noir-middleware uri))
+    (when repl
+      (repl-init uri))))
 
 (defn num-id [id]
   (Long. id))
