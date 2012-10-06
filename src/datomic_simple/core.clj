@@ -17,13 +17,14 @@
                 *db*         (d/db conn)]
         (handler request)))))
 
-(defn q [query & args]
-  (apply d/q query *db* args))
+(defn q [query & args] (apply d/q query *db* args))
+
+(defn entity [id] (d/entity *db* id))
 
 (defn where [query & args]
   (->> (apply q query args)
     (mapv (fn [items]
-      (mapv #(d/entity *db* %) items)))))
+      (mapv entity items)))))
 
 (defn entity->map [e]
   (merge (select-keys e (keys e))
@@ -45,9 +46,18 @@
                         ["]"]))]
     (apply find-all query-string (flatten (vec query-map)))))
 
+; from https://gist.github.com/3150938
+(defmacro with-latest-database
+  "Runs the body with the latest version of that database bound to
+  *db*, rather than the request-consistent database."
+  [& body]
+  `(binding  [*db*  (d/db *connection*)]
+    ~@body))
+
 (defn- repl-init [uri]
   (def ^:dynamic *connection* (d/connect uri))
-  (def ^:dynamic *db* (d/db *connection*)))
+  (defn q [query & args] (with-latest-database (apply d/q query *db* args)))
+  (defn entity [id] (with-latest-database (d/entity *db* id))))
 
 (defn transact [tx]
   (d/transact *connection* tx))
@@ -90,8 +100,8 @@
   (Long. id))
 
 (defn find-id [id]
-  (let [entity (d/entity *db* (num-id id))]
-    (if-not (empty? entity) (entity->map entity))))
+  (let [ent (entity (num-id id))]
+    (if-not (empty? ent) (entity->map ent))))
 
 (defn delete [& ids]
    (transact! (map #(vec [:db.fn/retractEntity (num-id %)]) ids)))
