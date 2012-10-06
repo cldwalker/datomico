@@ -21,12 +21,9 @@ Setup should be easy:
   [:password :string]]))
 
 ; Start datomic and initialize schemas without needing to think of database values and connections
+; or adding middleware (if using noir)
 (db/start {:uri "datomic:mem://my-app"
            :schemas [user-schema]})
-
-; For webapps, you still need to add ring middleware. (To be handled by start eventually).
-; An example using noir:
-(noir.server/add-middleware db/wrap-datomic "datomic:mem://my-app")
 ```
 
 Creation, updating, deleting and querying should be easy:

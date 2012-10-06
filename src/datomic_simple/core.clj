@@ -70,12 +70,17 @@
    (binding [*connection* (d/connect uri)]
     (transact! (map add-new-id (flatten data)))))
 
+(defmacro add-noir-middleware [uri]
+  `(noir.server/add-middleware wrap-datomic ~uri))
+
 (defn start [{:keys [uri schemas seed-data]}]
   (init uri)
   (when (seq schemas)
     (load-schemas uri schemas))
   (when (seq seed-data)
-    (load-seed-data uri seed-data)))
+    (load-seed-data uri seed-data))
+  (when (some #{"noir.server"} (map str (all-ns)))
+    (add-noir-middleware uri)))
 
 (defn num-id [id]
   (Long. id))
