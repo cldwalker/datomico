@@ -154,6 +154,11 @@
 (defn local-find-by [nsp query-map]
   (map localize-attr (find-by (namespace-keys nsp query-map))))
 
+(defn delete-by [nsp query-map]
+  (let [results (local-find-by nsp query-map)]
+    (when (seq results)
+      (apply delete (map :id results)))))
+
 (defn local-all-by [nsp field]
   (all (format "[:find ?e :where [?e %s/%s]]" nsp (name field))))
 
