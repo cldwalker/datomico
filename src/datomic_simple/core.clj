@@ -113,7 +113,8 @@
   (let [cardinality (if (some #{:many} options)
                       :db.cardinality/many
                       :db.cardinality/one)
-        fulltext    (not (boolean (some #{:nofulltext} options))) 
+        fulltext    (if-not (= value-type :string) false 
+                      (not (boolean (some #{:nofulltext} options))))
         history     (boolean (some #{:nohistory} options))
         index       (not (boolean (some #{:noindex} options)))]
     
