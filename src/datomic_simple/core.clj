@@ -17,10 +17,14 @@
                 *db*         (d/db conn)]
         (handler request)))))
 
+; *db* fns - these get overriden by repl-init in a repl
 (defn q [query & args] (apply d/q query *db* args))
 
 (defn entity [id] (d/entity *db* id))
 
+(defn resolve-tempid [tempids tempid] (d/resolve-tempid *db* tempids tempid))
+
+; query fns
 (defn where [query & args]
   (->> (apply q query args)
     (mapv (fn [items]
@@ -57,6 +61,7 @@
 (defn- repl-init [uri]
   (def ^:dynamic *connection* (d/connect uri))
   (defn q [query & args] (with-latest-database (apply d/q query *db* args)))
+  (defn resolve-tempid [tempids tempid] (with-latest-database (d/resolve-tempid *db* tempids tempid)))
   (defn entity [id] (with-latest-database (d/entity *db* id))))
 
 (defn transact [tx]
@@ -169,7 +174,10 @@
   (add-new-id (namespace-keys nsp attr)))
 
 (defn create [nsp attr]
-  (transact! [(build-attr nsp attr)]))
+  (let [nsp-attr (build-attr nsp attr)
+        tx-result (transact! [nsp-attr])
+        new-id (resolve-tempid (:tempids tx-result) (:db/id nsp-attr))]
+    (merge attr {:id new-id})))
 
 (defn update [nsp id attr]
   (bare-update id (namespace-keys nsp attr)))
