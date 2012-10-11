@@ -159,6 +159,9 @@
 (defn local-find-by [nsp query-map]
   (map localize-attr (find-by (namespace-keys nsp query-map))))
 
+(defn expand-ref [m]
+  (if (empty? m) nil (localize-attr (entity->map m))))
+
 (defn delete-by [nsp query-map]
   (let [results (local-find-by nsp query-map)]
     (when (seq results)
