@@ -1,86 +1,7 @@
 (ns datomic-simple.core
+  (:use datomic-simple.db)
   (:require [datomic.api :as d]
-            clojure.string))
-
-(def ^:dynamic *uri*)
-(def ^:dynamic *connection*)
-(def ^:dynamic *db*)
-
-; from https://gist.github.com/3150938
-(defn wrap-datomic
-  "A Ring middleware that provides a request-consistent database connection and
-  value for the life of a request."
-  [handler uri]
-  (fn [request]
-    (let [conn (d/connect uri)]
-      (binding [*connection* conn
-                *db*         (d/db conn)]
-        (handler request)))))
-
-; *db* fns - these get overriden by repl-init in a repl
-(defn q [query & args] (apply d/q query *db* args))
-
-(defn entity [id] (d/entity *db* id))
-
-(defn resolve-tempid [tempids tempid] (d/resolve-tempid *db* tempids tempid))
-
-; query fns
-(defn where [query & args]
-  (->> (apply q query args)
-    (mapv (fn [items]
-      (mapv entity items)))))
-
-(defn entity->map [e]
-  (merge (select-keys e (keys e))
-         {:db/id (:db/id e)}))
-
-(defn find-all [query & args]
-  (->> (apply where query args) flatten (map entity->map))) 
-
-(defn find-first [query & args]
-  (first (apply find-all query args)))
-
-(defn find-by [query-map]
-  (let [query-string (clojure.string/join " "
-                      (concat
-                        ["[:find ?e :in $"]
-                        (map #(str "?field" % " ?val" %) (range (count query-map)))
-                        [":where"]
-                        (map #(str "[?e ?field" % " ?val" % "]") (range (count query-map)))
-                        ["]"]))]
-    (apply find-all query-string (flatten (vec query-map)))))
-
-; from https://gist.github.com/3150938
-(defmacro with-latest-database
-  "Runs the body with the latest version of that database bound to
-  *db*, rather than the request-consistent database."
-  [& body]
-  `(binding  [*db*  (d/db *connection*)]
-    ~@body))
-
-(defn- repl-init [uri]
-  (def ^:dynamic *connection* (d/connect uri))
-  (defn q [query & args] (with-latest-database (apply d/q query *db* args)))
-  (defn resolve-tempid [tempids tempid] (with-latest-database (d/resolve-tempid *db* tempids tempid)))
-  (defn entity [id] (with-latest-database (d/entity *db* id))))
-
-(defn transact [tx]
-  (d/transact *connection* tx))
-
-(defn transact! [tx]
-  (prn "Transacting..." tx)
-  @(transact tx))
-
-(defn load-schemas [uri schemas]
-  (binding [*connection* (d/connect uri)]
-    (transact! (flatten schemas))))
-
-(defn- add-new-id [attr]
-  (merge {:db/id (d/tempid :db.part/user)} attr))
-
-(defn load-seed-data [uri data]
-   (binding [*connection* (d/connect uri)]
-    (transact! (map add-new-id (flatten data)))))
+            [datomic-simple.actions :as actions]))
 
 (defmacro ^:private add-noir-middleware [uri]
   `(noir.server/add-middleware wrap-datomic ~uri))
@@ -90,7 +11,7 @@
 
 (defn start [{:keys [uri schemas seed-data repl]}]
   (let [uri (or uri (rand-connection))]
-    (def ^:dynamic *uri* uri)
+    (set-uri uri)
     (d/create-database uri)
     (when (seq schemas)
       (load-schemas uri schemas))
@@ -100,19 +21,6 @@
       (add-noir-middleware uri))
     (when repl
       (repl-init uri))))
-
-(defn num-id [id]
-  (Long. id))
-
-(defn find-id [id]
-  (let [ent (entity (num-id id))]
-    (if-not (empty? ent) (entity->map ent))))
-
-(defn delete [& ids]
-   (transact! (map #(vec [:db.fn/retractEntity (num-id %)]) ids)))
-
-(defn bare-update [id attr]
-  (transact! [(merge attr {:db/id (num-id id)})]))
 
 (defn build-schema-attr [attr-name value-type & options]
   (let [cardinality (if (some #{:many} options)
@@ -151,21 +59,21 @@
   (map-keys attr #(keyword (name %))))
 
 (defn all [query]
-  (map localize-attr (find-all query)))
+  (map localize-attr (actions/find-all query)))
 
 (defn local-find-id [id]
-  (if-let [m (find-id id)] (localize-attr m)))
+  (if-let [m (actions/find-id id)] (localize-attr m)))
 
 (defn local-find-by [nsp query-map]
-  (map localize-attr (find-by (namespace-keys nsp query-map))))
+  (map localize-attr (actions/find-by (namespace-keys nsp query-map))))
 
 (defn expand-ref [m]
-  (if (empty? m) nil (localize-attr (entity->map m))))
+  (if (empty? m) nil (localize-attr (actions/entity->map m))))
 
 (defn delete-by [nsp query-map]
   (let [results (local-find-by nsp query-map)]
     (when (seq results)
-      (apply delete (map :id results)))))
+      (apply actions/delete (map :id results)))))
 
 (defn local-all-by [nsp field]
   (all (format "[:find ?e :where [?e %s/%s]]" nsp (name field))))
@@ -183,7 +91,7 @@
     (merge attr {:id new-id})))
 
 (defn update [nsp id attr]
-  (bare-update id (namespace-keys nsp attr)))
+  (actions/bare-update id (namespace-keys nsp attr)))
 
 (defmacro create-model-fn
   "Creates a local function that wraps a datomic-simple fn with a namespace arg."
