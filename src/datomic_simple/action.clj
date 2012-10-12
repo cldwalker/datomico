@@ -1,4 +1,4 @@
-(ns datomic-simple.actions
+(ns datomic-simple.action
   (:require [datomic-simple.db :as db])
   (:require clojure.string))
 ;;; basic CRUD fns, useful for any datomic app i.e. no namespace assumptions
