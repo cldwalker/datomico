@@ -185,3 +185,20 @@
 (defn update [nsp id attr]
   (bare-update id (namespace-keys nsp attr)))
 
+(defmacro create-model-fn
+  "Creates a local function that wraps a datomic-simple fn with a namespace arg."
+  [fn-name nsp]
+  `(do
+    (def ~(symbol (name fn-name))
+      (partial ~(deref (resolve (symbol "datomic-simple.core" (name fn-name)))) ~nsp))))
+
+(defmacro create-model-fns-for
+  "Creates model fns that scope to the given model namespace."
+  [nsp]
+  `(do
+    (create-model-fn :create ~nsp)
+    (create-model-fn :local-all-by ~nsp)
+    (create-model-fn :local-find-first-by ~nsp)
+    (create-model-fn :local-find-by ~nsp)
+    (create-model-fn :delete-by ~nsp)
+    (create-model-fn :update ~nsp)))
