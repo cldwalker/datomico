@@ -1,29 +1,29 @@
 (ns datomic-simple.core
-  (:use datomic-simple.db)
   (:require [datomic.api :as api]
             datomic-simple.model
+            [datomic-simple.db :as db]
             [datomic-simple.util :as util]))
 
 (defmacro ^:private add-noir-middleware [uri]
-  `(noir.server/add-middleware wrap-datomic ~uri))
+  `(noir.server/add-middleware db/wrap-datomic ~uri))
 
-(defn rand-connection []
+(defn- rand-connection []
   (str "datomic:mem://" (java.util.UUID/randomUUID)))
 
 (defn start [{:keys [uri schemas seed-data repl]}]
   (let [uri (or uri (rand-connection))]
-    (set-uri uri)
+    (db/set-uri uri)
     (api/create-database uri)
     (when (seq schemas)
-      (load-schemas uri schemas))
+      (db/load-schemas uri schemas))
     (when (seq seed-data)
-      (load-seed-data uri seed-data))
+      (db/load-seed-data uri seed-data))
     (when (some #{"noir.server"} (map str (all-ns)))
       (add-noir-middleware uri))
     (when repl
-      (repl-init uri))))
+      (db/repl-init uri))))
 
-(defn build-schema-attr [attr-name value-type & options]
+(defn- build-schema-attr [attr-name value-type & options]
   (let [cardinality (if (some #{:many} options)
                       :db.cardinality/many
                       :db.cardinality/one)
