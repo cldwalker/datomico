@@ -5,8 +5,8 @@
             [datomic-simple.db :as db]
             [datomic-simple.util :as util]))
 
-(defmacro ^:private add-noir-middleware [uri]
-  `(noir.server/add-middleware db/wrap-datomic ~uri))
+(defn- add-noir-middleware [uri]
+  (@(resolve (symbol "noir.server" "add-middleware")) db/wrap-datomic uri))
 
 (defn- rand-connection []
   (str "datomic:mem://" (java.util.UUID/randomUUID)))
