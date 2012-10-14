@@ -8,27 +8,27 @@
   (util/map-keys attr #(keyword (name %))))
 
 (defn- all [query]
-  (map localize-attr (action/find-all query)))
+  (map localize-attr (action/where query)))
 
 (defn find-id [id]
   (if-let [m (action/find-id id)] (localize-attr m)))
 
-(defn find-by [nsp query-map]
-  (map localize-attr (action/find-by (util/namespace-keys nsp query-map))))
+(defn find-all [nsp query-map]
+  (map localize-attr (action/find-all (util/namespace-keys nsp query-map))))
 
 (defn expand-ref [m]
   (if (empty? m) nil (localize-attr (action/entity->map m))))
 
-(defn delete-by [nsp query-map]
-  (let [results (find-by nsp query-map)]
+(defn delete-all [nsp query-map]
+  (let [results (find-all nsp query-map)]
     (when (seq results)
       (apply action/delete (map :id results)))))
 
-(defn all-by [nsp field]
+(defn find-all-by [nsp field]
   (all (format "[:find ?e :where [?e %s/%s]]" nsp (name field))))
 
-(defn find-first-by [nsp query-map]
-  (first (find-by nsp query-map)))
+(defn find-first [nsp query-map]
+  (first (find-all nsp query-map)))
 
 (defn- build-attr [nsp attr]
   (db/add-new-id (util/namespace-keys nsp attr)))
@@ -40,7 +40,7 @@
     (merge attr {:id new-id})))
 
 (defn update [nsp id attr]
-  (action/bare-update id (util/namespace-keys nsp attr)))
+  (action/update id (util/namespace-keys nsp attr)))
 
 ; TODO: fix - only worked in global namespace
 ;(defmacro create-model-fn
@@ -55,8 +55,8 @@
 ;  [nsp]
 ;  `(do
 ;    (create-model-fn :create ~nsp)
-;    (create-model-fn :all-by ~nsp)
-;    (create-model-fn :find-first-by ~nsp)
-;    (create-model-fn :find-by ~nsp)
-;    (create-model-fn :delete-by ~nsp)
+;    (create-model-fn :find-all-by ~nsp)
+;    (create-model-fn :find-first ~nsp)
+;    (create-model-fn :find-all ~nsp)
+;    (create-model-fn :delete-all ~nsp)
 ;    (create-model-fn :update ~nsp)))

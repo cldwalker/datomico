@@ -34,7 +34,7 @@ Creation, updating, deleting and querying should be easy:
 
 ```clojure
 (db/create user-key {:username "dodo" :password "bird"})
-(db/find-by user-key {:username "dodo"})
+(db/find-all user-key {:username "dodo"})
 ; => ({:username "dodo" :password "bird" :id 1024053})
 
 (db/update user-key 1024053 {:username "big"})
