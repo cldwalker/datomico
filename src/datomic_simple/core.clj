@@ -1,6 +1,7 @@
 (ns datomic-simple.core
   (:require [datomic.api :as api]
             datomic-simple.model
+            datomic-simple.action
             [datomic-simple.db :as db]
             [datomic-simple.util :as util]))
 
@@ -54,6 +55,7 @@
 (def local-find-by datomic-simple.model/local-find-by)
 (def expand-ref datomic-simple.model/expand-ref)
 (def delete-by datomic-simple.model/delete-by)
+(def delete datomic-simple.action/delete)
 (def local-all-by datomic-simple.model/local-all-by)
 (def local-find-first-by datomic-simple.model/local-find-first-by)
 (def create datomic-simple.model/create)
