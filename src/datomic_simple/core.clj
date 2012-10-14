@@ -51,12 +51,12 @@
   (map (partial util/namespace-keys nsp) attrs))
 
 ; TODO: remove once create-model-fns works
-(def local-find-id datomic-simple.model/local-find-id)
-(def local-find-by datomic-simple.model/local-find-by)
+(def find-id datomic-simple.model/find-id)
+(def find-by datomic-simple.model/find-by)
+(def find-first-by datomic-simple.model/find-first-by)
+(def all-by datomic-simple.model/all-by)
 (def expand-ref datomic-simple.model/expand-ref)
 (def delete-by datomic-simple.model/delete-by)
 (def delete datomic-simple.action/delete)
-(def local-all-by datomic-simple.model/local-all-by)
-(def local-find-first-by datomic-simple.model/local-find-first-by)
 (def create datomic-simple.model/create)
 (def update datomic-simple.model/update)

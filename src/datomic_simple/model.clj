@@ -10,25 +10,25 @@
 (defn- all [query]
   (map localize-attr (action/find-all query)))
 
-(defn local-find-id [id]
+(defn find-id [id]
   (if-let [m (action/find-id id)] (localize-attr m)))
 
-(defn local-find-by [nsp query-map]
+(defn find-by [nsp query-map]
   (map localize-attr (action/find-by (util/namespace-keys nsp query-map))))
 
 (defn expand-ref [m]
   (if (empty? m) nil (localize-attr (action/entity->map m))))
 
 (defn delete-by [nsp query-map]
-  (let [results (local-find-by nsp query-map)]
+  (let [results (find-by nsp query-map)]
     (when (seq results)
       (apply action/delete (map :id results)))))
 
-(defn local-all-by [nsp field]
+(defn all-by [nsp field]
   (all (format "[:find ?e :where [?e %s/%s]]" nsp (name field))))
 
-(defn local-find-first-by [nsp query-map]
-  (first (local-find-by nsp query-map)))
+(defn find-first-by [nsp query-map]
+  (first (find-by nsp query-map)))
 
 (defn- build-attr [nsp attr]
   (db/add-new-id (util/namespace-keys nsp attr)))
@@ -55,8 +55,8 @@
 ;  [nsp]
 ;  `(do
 ;    (create-model-fn :create ~nsp)
-;    (create-model-fn :local-all-by ~nsp)
-;    (create-model-fn :local-find-first-by ~nsp)
-;    (create-model-fn :local-find-by ~nsp)
+;    (create-model-fn :all-by ~nsp)
+;    (create-model-fn :find-first-by ~nsp)
+;    (create-model-fn :find-by ~nsp)
 ;    (create-model-fn :delete-by ~nsp)
 ;    (create-model-fn :update ~nsp)))
