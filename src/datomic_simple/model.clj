@@ -42,21 +42,9 @@
 (defn update [nsp id attr]
   (action/update id (util/namespace-keys nsp attr)))
 
-; TODO: fix - only worked in global namespace
-;(defmacro create-model-fn
-;  "Creates a local function that wraps a datomic-simple fn with a namespace arg."
-;  [fn-name nsp]
-;  `(do
-;    (def ~(symbol (name fn-name))
-;      (partial ~(deref (resolve (symbol "datomic-simple.model" (name fn-name)))) ~nsp))))
-;
-;(defmacro create-model-fns-for
-;  "Creates model fns that scope to the given model namespace."
-;  [nsp]
-;  `(do
-;    (create-model-fn :create ~nsp)
-;    (create-model-fn :find-all-by ~nsp)
-;    (create-model-fn :find-first ~nsp)
-;    (create-model-fn :find-all ~nsp)
-;    (create-model-fn :delete-all ~nsp)
-;    (create-model-fn :update ~nsp)))
+(defmacro create-model-fn
+  "Creates a local function that wraps a datomic-simple fn with a namespace arg."
+  [fn-name nsp]
+  `(do
+    (def ~(symbol (name fn-name))
+      (partial ~(deref (resolve (symbol "datomic-simple.model" (name fn-name)))) ~nsp))))

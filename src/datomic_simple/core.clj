@@ -1,6 +1,6 @@
 (ns datomic-simple.core
   (:require [datomic.api :as api]
-            datomic-simple.model
+            [datomic-simple.model :as dm]
             datomic-simple.action
             [datomic-simple.db :as db]
             [datomic-simple.util :as util]))
@@ -50,13 +50,18 @@
 (defn build-seed-data [nsp attrs]
   (map (partial util/namespace-keys nsp) attrs))
 
-; TODO: remove once create-model-fns works
 (def find-id datomic-simple.model/find-id)
-(def find-all datomic-simple.model/find-all)
-(def find-first datomic-simple.model/find-first)
-(def find-all-by datomic-simple.model/find-all-by)
 (def expand-ref datomic-simple.model/expand-ref)
-(def delete-all datomic-simple.model/delete-all)
 (def delete datomic-simple.action/delete)
-(def create datomic-simple.model/create)
-(def update datomic-simple.model/update)
+
+; TODO: allow user to pass in which fns they want to create
+(defmacro create-model-fns
+  "Creates model fns that scope to the given model namespace."
+  [nsp]
+  `(do
+    (dm/create-model-fn :create ~nsp)
+    (dm/create-model-fn :find-all-by ~nsp)
+    (dm/create-model-fn :find-first ~nsp)
+    (dm/create-model-fn :find-all ~nsp)
+    (dm/create-model-fn :delete-all ~nsp)
+    (dm/create-model-fn :update ~nsp)))
