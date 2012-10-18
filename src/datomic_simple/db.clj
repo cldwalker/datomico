@@ -2,9 +2,9 @@
   (:require [datomic.api :as d]))
 ;;; Handles database values and connections
 
-(def ^:dynamic *uri*)
-(def ^:dynamic *connection*)
-(def ^:dynamic *db*)
+(def ^{:dynamic true :doc "Datomic uri available to all datomic-simple fns."} *uri*)
+(def ^{:dynamic true :doc "Datomic connection available to all datomic-simple fns."} *connection*)
+(def ^{:dynamic true :doc "Datomic database value available to all datomic-simple fns."} *db*)
 
 ; from https://gist.github.com/3150938
 (defn wrap-datomic
@@ -30,29 +30,45 @@
   `(binding  [*db*  (d/db *connection*)]
     ~@body))
 
-(defn repl-init [uri]
+; TODO: Wrap around fns with dynamic variables without needing to respecify their implementation
+(defn repl-init
+  "Initializes repl by setting all required dynamic variables and wrapping datomic fns with them."
+  [uri]
   (def ^:dynamic *connection* (d/connect uri))
   (defn q [query & args] (with-latest-database (apply d/q query *db* args)))
   (defn resolve-tempid [tempids tempid] (with-latest-database (d/resolve-tempid *db* tempids tempid)))
   (defn entity [id] (with-latest-database (d/entity *db* id))))
 
-(defn transact [tx]
+(defn transact
+  "Wraps around datomic.api/transact."
+  [tx]
   (d/transact *connection* tx))
 
-(defn transact! [tx]
+; TODO: replace prn with proper logging
+(defn transact!
+  "Wraps around datomic.api/transact and derefs it."
+  [tx]
   (prn "Transacting..." tx)
   @(transact tx))
 
-(defn load-schemas [uri schemas]
+(defn load-schemas
+  "Loads schemas for a given uri."
+  [uri schemas]
   (binding [*connection* (d/connect uri)]
     (transact! (flatten schemas))))
 
-(defn add-new-id [attr]
+(defn add-new-id
+  "Adds a tempid to a map of attributes."
+  [attr]
   (merge {:db/id (d/tempid :db.part/user)} attr))
 
-(defn load-seed-data [uri data]
+(defn load-seed-data
+  "Loads seed data for a given uri."
+  [uri data]
    (binding [*connection* (d/connect uri)]
     (transact! (map add-new-id (flatten data)))))
 
-(defn set-uri [uri]
+(defn set-uri
+  "Sets *uri*."
+  [uri]
   (def ^:dynamic *uri* uri))

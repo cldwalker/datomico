@@ -26,6 +26,7 @@
   [query & args]
   (first (apply where query args)))
 
+;; TODO: build a data structure instead of a string
 (defn find-all
   "Queries with given map of attribute names to values and returns a vector of maps."
   [query-map]
