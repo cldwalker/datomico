@@ -3,22 +3,32 @@
   (:require clojure.string))
 ;;; basic CRUD fns, useful for any datomic app i.e. no namespace assumptions
 
-(defn raw-where [query & args]
+(defn raw-where
+  "Queries with datomic.api/q and converts results to entities."
+  [query & args]
   (->> (apply db/q query args)
     (mapv (fn [items]
       (mapv db/entity items)))))
 
-(defn entity->map [e]
+(defn entity->map
+  "Converts an entity into a map with :db/id added."
+  [e]
   (merge (select-keys e (keys e))
          {:db/id (:db/id e)}))
 
-(defn where [query & args]
+(defn where
+  "Queries with datomic.api/q and converts results into a vector of maps."
+  [query & args]
   (->> (apply raw-where query args) flatten (map entity->map))) 
 
-(defn find-first [query & args]
+(defn find-first
+  "Queries with datomic.api/q and returns first result as a map. Returns nil if nothing found."
+  [query & args]
   (first (apply where query args)))
 
-(defn find-all [query-map]
+(defn find-all
+  "Queries with given map of attribute names to values and returns a vector of maps."
+  [query-map]
   (let [query-string (clojure.string/join " "
                       (concat
                         ["[:find ?e :in $"]
@@ -28,15 +38,21 @@
                         ["]"]))]
     (apply where query-string (flatten (vec query-map)))))
 
-(defn num-id [id]
+(defn- num-id [id]
   (Long. id))
 
-(defn find-id [id]
+(defn find-id
+  "If entity is found for id, return it as a map. Otherwise return nil."
+  [id]
   (let [ent (db/entity (num-id id))]
     (if-not (empty? ent) (entity->map ent))))
 
-(defn delete [& ids]
+(defn delete
+  "Deletes given ids."
+  [& ids]
    (db/transact! (map #(vec [:db.fn/retractEntity (num-id %)]) ids)))
 
-(defn update [id attr]
+(defn update
+  "Updates given id with map of attributes."
+  [id attr]
   (db/transact! [(merge attr {:db/id (num-id id)})]))
