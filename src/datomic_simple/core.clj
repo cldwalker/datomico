@@ -88,11 +88,10 @@
 ; TODO: allow user to pass in which fns they want to create
 (defmacro create-model-fns
   "Creates model fns that are scoped to the given model (keyword namespace). Creates the following
-  fns: create, update, delete-all, find-all, find-first and find-all-by."
+  fns: create, update, delete-all, find-all and find-first."
   [nsp]
   `(do
     (dm/create-model-fn :create ~nsp)
-    (dm/create-model-fn :find-all-by ~nsp)
     (dm/create-model-fn :find-first ~nsp)
     (dm/create-model-fn :find-all ~nsp)
     (dm/create-model-fn :delete-all ~nsp)

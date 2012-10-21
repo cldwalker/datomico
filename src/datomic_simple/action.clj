@@ -26,6 +26,16 @@
   [query & args]
   (first (apply where query args)))
 
+(defn all
+  "Returns all entities for a given namespace."
+  [nsp]
+  (where '[:find ?e
+                  :in $ ?nsp
+                  :where [?e ?attr]
+                         [?attr :db/ident ?name]
+                         [(#(= (namespace %1) (name %2)) ?name ?nsp)]]
+                nsp))
+
 ;; TODO: build a data structure instead of a string
 (defn find-all
   "Queries with given map of attribute names to values and returns a vector of maps."

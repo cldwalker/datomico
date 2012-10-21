@@ -7,9 +7,6 @@
 (defn- localize-attr [attr]
   (util/map-keys attr #(keyword (name %))))
 
-(defn- all [query]
-  (map localize-attr (action/where query)))
-
 (defn find-id
   "If entity is found, returns it as a map with no namespace. Otherwise returns nil."
   [id]
@@ -17,8 +14,9 @@
 
 (defn find-all
   "Queries with given map of attribute names to values and returns a vector of maps with no namespace."
-  [nsp query-map]
-  (map localize-attr (action/find-all (util/namespace-keys nsp query-map))))
+  ([nsp] (map localize-attr (action/all nsp)))
+  ([nsp query-map]
+    (map localize-attr (action/find-all (util/namespace-keys nsp query-map)))))
 
 (defn expand-ref
   "Given the value from a field that is of type ref, expands the relationship to return its map."
@@ -31,12 +29,6 @@
   (let [results (find-all nsp query-map)]
     (when (seq results)
       (apply action/delete (map :id results)))))
-
-;; TODO: Return all entities without needing to specify a field.
-(defn find-all-by
-  "Returns all entities in a given namespace that have the given field."
-  [nsp field]
-  (all (format "[:find ?e :where [?e %s/%s]]" nsp (name field))))
 
 (defn find-first
   "Given a map-based query, returns first result as a map with no namespace or nil."
