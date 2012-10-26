@@ -29,7 +29,7 @@
     (db/set-uri uri)
     (api/create-database uri)
     (when (seq schemas)
-      (db/load-schemas uri schemas))
+      (db/load-schemas schemas))
     (when (seq seed-data)
       (db/load-seed-data uri seed-data))
     (when (some #{"noir.server"} (map str (all-ns)))

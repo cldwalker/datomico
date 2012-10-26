@@ -53,8 +53,8 @@
 
 (defn load-schemas
   "Loads schemas for a given uri."
-  [uri schemas]
-  (binding [*connection* (d/connect uri)]
+  [schemas]
+  (binding [*connection* (d/connect *uri*)]
     (transact! (flatten schemas))))
 
 (defn add-new-id
