@@ -10,3 +10,9 @@
   "Given a namespace and map, namespaces the keys of the map."
   [nsp attr]
   (map-keys attr #(keyword (name nsp) (name %))))
+
+(defn localize-attr
+  "Creates a map with original keyword keys stripped of their namespace i.e. :url/name -> :name."
+  [attr]
+  (map-keys attr #(keyword (name %))))
+

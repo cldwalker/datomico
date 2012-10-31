@@ -4,24 +4,21 @@
             [datomic-simple.action :as action]))
 ;;; CRUD db action that scope to a datomic model/namespace i.e. :user
 
-(defn- localize-attr [attr]
-  (util/map-keys attr #(keyword (name %))))
-
 (defn find-id
   "If entity is found, returns it as a map with no namespace. Otherwise returns nil."
   [id]
-  (if-let [m (action/find-id id)] (localize-attr m)))
+  (if-let [m (action/find-id id)] (util/localize-attr m)))
 
 (defn find-all
   "Queries with given map of attribute names to values and returns a vector of maps with no namespace."
-  ([nsp] (map localize-attr (action/all nsp)))
+  ([nsp] (map util/localize-attr (action/all nsp)))
   ([nsp query-map]
-    (map localize-attr (action/find-all (util/namespace-keys nsp query-map)))))
+    (map util/localize-attr (action/find-all (util/namespace-keys nsp query-map)))))
 
 (defn expand-ref
   "Given the value from a field that is of type ref, expands the relationship to return its map."
   [m]
-  (if (empty? m) nil (localize-attr (action/entity->map m))))
+  (if (empty? m) nil (util/localize-attr (action/entity->map m))))
 
 (defn delete-all
   "Delets all entities that match a map-based query."
