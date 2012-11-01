@@ -43,6 +43,11 @@
         new-id (db/resolve-tempid (:tempids tx-result) (:db/id nsp-attr))]
     (merge attr {:id new-id})))
 
+(defn find-or-create
+  "Finds an entity by given attributes or creates it."
+  [nsp attr]
+  (or (find-first nsp attr) (create nsp attr)))
+
 (defn update
   "Updates given id with map of attributes."
   [nsp id attr]
