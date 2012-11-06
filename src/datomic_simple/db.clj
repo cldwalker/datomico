@@ -22,12 +22,11 @@
 (defn entity [id] (d/entity *db* id))
 (defn resolve-tempid [tempids tempid] (d/resolve-tempid *db* tempids tempid))
 
-; from https://gist.github.com/3150938
-(defmacro with-latest-database
+(defmacro with-bound-or-latest-database
   "Runs the body with the latest version of that database bound to
   *db*, rather than the request-consistent database."
   [& body]
-  `(binding  [*db*  (d/db *connection*)]
+  `(binding [*db* (if (bound? #'*db*) *db* (d/db *connection*))]
     ~@body))
 
 ; TODO: Wrap around fns with dynamic variables without needing to respecify their implementation
@@ -35,9 +34,9 @@
   "Initializes repl by setting all required dynamic variables and wrapping datomic fns with them."
   [uri]
   (def ^:dynamic *connection* (d/connect uri))
-  (defn q [query & args] (with-latest-database (apply d/q query *db* args)))
-  (defn resolve-tempid [tempids tempid] (with-latest-database (d/resolve-tempid *db* tempids tempid)))
-  (defn entity [id] (with-latest-database (d/entity *db* id))))
+  (defn q [query & args] (with-bound-or-latest-database (apply d/q query *db* args)))
+  (defn resolve-tempid [tempids tempid] (with-bound-or-latest-database (d/resolve-tempid *db* tempids tempid)))
+  (defn entity [id] (with-bound-or-latest-database (d/entity *db* id))))
 
 (defn transact
   "Wraps around datomic.api/transact."
