@@ -37,22 +37,58 @@
     (when repl
       (db/repl-init uri))))
 
+
+;;allowable types in datomic
+;;http://docs.datomic.com/schema.html
+
+;:db.type/keyword - Value type for keywords. Keywords are used as names, and are interned for efficiency. Keywords map to the native interned-name type in languages that support them.
+;:db.type/string - Value type for strings.
+;:db.type/boolean - Boolean value type.
+;:db.type/long - Fixed integer value type. Same semantics as a Java long: 64 bits wide, two's complement binary representation.
+;:db.type/bigint - Value type for arbitrary precision integers. Maps to java.math.BigInteger on Java platforms.
+;:db.type/float - Floating point value type. Same semantics as a Java float: single-precision 32-bit IEEE 754 floating point.
+;:db.type/double - Floating point value type. Same semantics as a Java double: double-precision 64-bit IEEE 754 floating point.
+;:db.type/bigdec - Value type for arbitrary precision floating point numbers. Maps to java.math.BigDecimal on Java platforms.
+;:db.type/ref - Value type for references. All references from one entity to another are through attributes with this value type.
+;:db.type/instant - Value type for instants in time. Stored internally as a number of milliseconds since midnight, January 1, 1970 UTC. Maps to java.util.Date on Java platforms.
+;:db.type/uuid - Value type for UUIDs. Maps to java.util.UUID on Java platforms.
+;:db.type/uri - Value type for URIs. Maps to java.net.URI on Java platforms.
+;:db.type/bytes - Value type for small binary data. Maps to byte array on Java platforms.
+
+(def permitted-types (sorted-set :db.type/bytes :db.type/uri :db.type/uuid :db.type/instant 
+                                 :db.type/keyword :db.type/string :db.type/boolean 
+                                 :db.type/long :db.type/bigint :db.type/float :db.type/double 
+                                 :db.type/bigdec :db.type/ref))
+(defn- type-permitted? 
+  "test if the tpye is allowd in datomic, if it's not then throw an error, if it is then return the input"
+  [type]
+  (if (contains? permitted-types type)
+      type
+      (throw (Exception. (str "type: " type " is not allowed as a datomic schema type." \newline " Allowed types: " permitted-types)))))
+
 (defn- build-schema-attr [attr-name value-type & options]
-  (let [cardinality (if (some #{:many} options)
-                      :db.cardinality/many
-                      :db.cardinality/one)
-        fulltext    (if-not (= value-type :string) false 
-                      (not (boolean (some #{:nofulltext} options))))
-        history     (boolean (some #{:nohistory} options))
-        index       (not (boolean (some #{:noindex} options)))]
+  (let [
+       
+       ;;assume that the last thing in options is a doc string, only if it is a string
+       documentation (if (string? (last options)) (last options) nil)
+       cardinality   (if (some #{:many} options) :db.cardinality/many :db.cardinality/one)
+       fulltext?    (if-not (= value-type :string) false (not (boolean (some #{:nofulltext} options))))
+       history?     (boolean (some #{:nohistory} options))
+       index?       (boolean (some #{:index} options)) ;index is not turned on by default, since it signifcantly slows down transactional write throughput
+       unique?      (if (some #{:unique} options) :db.unique/value nil)
+       component?   (boolean (or (= value-type :component)(some #{:component} options)))
+       type         (if component? :db.type/ref (type-permitted? (keyword "db.type" (name value-type))))]
     
     {:db/id           (api/tempid :db.part/db)
      :db/ident        attr-name
-     :db/valueType    (keyword "db.type" (name value-type))
+     :db/doc          documentation
+     :db/valueType    type
+     :db/isComponent  component?
      :db/cardinality  cardinality
-     :db/index        index
-     :db/fulltext     fulltext
-     :db/noHistory    history
+     :db/index        index?
+     :db/fulltext     fulltext?
+     :db/noHistory    history?
+     :db/unique       unique?
      :db.install/_attribute :db.part/db}))
     
 (defn build-schema
@@ -64,12 +100,18 @@
   :many       Indicates a cardinality of many.
   :nofulltext Disables fulltext. If a field is of type string, fulltext is enabled by default.
   :nohistory  Disables history.
-  :noindex    Disables index.
+  :index      Enables index.
 
   Example:
   (build-schema :user
-    [[:username :string :nofulltext]
-     [:email :string]])
+  [[:name :string :nofulltext]
+  [:email :string :unique :index]
+  [:limb :component]])
+  
+  (build-schema :arm
+  [[:left :boolean]
+  [:right :boolean]
+  [:hand :component]])
   "
   [nsp attrs]
   (map #(apply build-schema-attr
