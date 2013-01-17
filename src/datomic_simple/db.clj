@@ -5,6 +5,7 @@
 (def ^{:dynamic true :doc "Datomic uri available to all datomic-simple fns."} *uri*)
 (def ^{:dynamic true :doc "Datomic connection available to all datomic-simple fns."} *connection*)
 (def ^{:dynamic true :doc "Datomic database value available to all datomic-simple fns."} *db*)
+(def ^ {:dynamic true :doc "Determines whether to log transactions and queries."} *logging* false)
 
 ; from https://gist.github.com/3150938
 (defn wrap-datomic
@@ -17,8 +18,13 @@
                 *db*         (d/db conn)]
         (handler request)))))
 
+(defn log
+  "Logs if *logging* is true"
+  [& args]
+  (when *logging* (apply prn args)))
+
 ; *db* fns - these get overriden by repl-init in a repl
-(defn q [query & args] (apply d/q query *db* args))
+(defn q [query & args] (log query args) (apply d/q query *db* args))
 (defn entity [id] (d/entity *db* id))
 (defn resolve-tempid [tempids tempid] (d/resolve-tempid *db* tempids tempid))
 
@@ -34,7 +40,7 @@
   "Initializes repl by setting all required dynamic variables and wrapping datomic fns with them."
   [uri]
   (def ^:dynamic *connection* (d/connect uri))
-  (defn q [query & args] (with-bound-or-latest-database (apply d/q query *db* args)))
+  (defn q [query & args] (with-bound-or-latest-database (log query args) (apply d/q query *db* args)))
   (defn resolve-tempid [tempids tempid] (with-bound-or-latest-database (d/resolve-tempid *db* tempids tempid)))
   (defn entity [id] (with-bound-or-latest-database (d/entity *db* id))))
 
@@ -43,11 +49,10 @@
   [tx]
   (d/transact *connection* tx))
 
-; TODO: replace prn with proper logging
 (defn transact!
   "Wraps around datomic.api/transact and derefs it."
   [tx]
-  (prn "Transacting..." tx)
+  (log "Transacting..." tx)
   @(transact tx))
 
 (defn load-schemas
