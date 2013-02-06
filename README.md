@@ -59,6 +59,8 @@ Creation, updating, deleting and querying should be easy for models:
 ## Credits
 * @relevance for fridays!
 * @bobby for much of the initial abstraction - https://gist.github.com/3150938
+* @boxxxie - for schema improvements
+* @ravster - for tests
 
 ## Links
 * [Sample blog using datomic-simple](https://github.com/cldwalker/datomic-noir-blog)
