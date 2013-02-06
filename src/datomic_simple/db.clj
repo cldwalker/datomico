@@ -28,12 +28,17 @@
 (defn entity [id] (d/entity *db* id))
 (defn resolve-tempid [tempids tempid] (d/resolve-tempid *db* tempids tempid))
 
+(defmacro with-latest-database
+  "Runs the body with the latest version of a connection's database."
+  [& body]
+  `(binding [*db* (d/db *connection*)] ~@body))
+
 (defmacro with-bound-or-latest-database
-  "Runs the body with the latest version of that database bound to
-  *db*, rather than the request-consistent database."
+  "Runs the body with the latest version of a connection's database unless *db*
+is already bound."
   [& body]
   `(binding [*db* (if (bound? #'*db*) *db* (d/db *connection*))]
-    ~@body))
+     ~@body))
 
 ; TODO: Wrap around fns with dynamic variables without needing to respecify their implementation
 (defn repl-init

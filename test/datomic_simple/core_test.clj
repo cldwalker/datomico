@@ -1,14 +1,10 @@
 (ns datomic-simple.core-test
-  (:use clojure.test
-        datomic-simple.core)
   (:require [datomic.api :as d]
+            [datomic-simple.core :refer :all]
+            [clojure.test :refer :all]
             [datomic-simple.db :as dsb]))
 
 (def datomic-uri "datomic:mem://datomic-simple-test")
-
-(defmacro with-latest-db [& body]
-  `(binding [datomic-simple.db/*db* (d/db datomic-simple.db/*connection*)]
-     ~@body))
 
 (defmacro with-db
   "Evaluates body with var bound to a connection"
@@ -17,7 +13,7 @@
      (binding [dsb/*uri* datomic-uri
                dsb/*connection* (d/connect datomic-uri)]
        (try
-         (with-latest-db (do ~@body)) 
+         (dsb/with-latest-database (do ~@body))
          (finally (d/delete-database datomic-uri))))))
 
 (deftest build-schema-test
