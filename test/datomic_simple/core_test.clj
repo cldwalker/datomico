@@ -19,14 +19,11 @@
 (deftest build-schema-test
   (testing "a property defaults to correct values"
     (is (= {:db/ident :animal/sound
-            :db/doc nil
             :db/valueType :db.type/string
-            :db/isComponent false
             :db/cardinality :db.cardinality/one
             :db/index false
             :db/fulltext true
-            :db/noHistory false
-            :db/unique nil}
+            :db/noHistory false}
            (-> (build-schema :animal [[:sound :string]])
                first
                (dissoc :db.install/_attribute :db/id)))))

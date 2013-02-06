@@ -37,7 +37,6 @@
     (when repl
       (db/repl-init uri))))
 
-
 (def valid-types
   "Defines allowed values for :db/valueType. For more info on each type see allowed
  values under :db/valueType at http://docs.datomic.com/schema.html#sec-1"
@@ -61,20 +60,23 @@ datomic's error message: 'Unable to resolve entity: :db.type/'..."
         history?     (boolean (some #{:nohistory} options))
         index?       (boolean (some #{:index} options))
         unique?      (if (some #{:unique} options) :db.unique/value nil)
-        component?   (boolean (or (= value-type :component)(some #{:component} options)))
+        component?   (or (= value-type :component) (some #{:component} options))
         type         (if component? :db.type/ref (disallow-invalid-types! (keyword "db.type" (name value-type))))]
-    
-    {:db/id           (api/tempid :db.part/db)
-     :db/ident        attr-name
-     :db/doc          documentation
-     :db/valueType    type
-     :db/isComponent  component?
-     :db/cardinality  cardinality
-     :db/index        index?
-     :db/fulltext     fulltext?
-     :db/noHistory    history?
-     :db/unique       unique?
-     :db.install/_attribute :db.part/db}))
+
+    (->>
+     {:db/id           (api/tempid :db.part/db)
+      :db/ident        attr-name
+      :db/doc          documentation
+      :db/valueType    type
+      :db/isComponent  component?
+      :db/cardinality  cardinality
+      :db/index        index?
+      :db/fulltext     fulltext?
+      :db/noHistory    history?
+      :db/unique       unique?
+      :db.install/_attribute :db.part/db}
+     (remove #(nil? (val %)))
+     (into {}))))
     
 (defn build-schema
   "Given a keyword namespace and a vector of vectors, creates a schema as
