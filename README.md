@@ -54,7 +54,15 @@ Creation, updating, deleting and querying should be easy for models:
 ```
 
 ## TODO
-* Tests!
+* More tests!
+
+## Bugs/Issues
+
+Please report them [on github](http://github.com/cldwalker/datomic-simple/issues).
+
+## License
+
+See LICENSE.TXT
 
 ## Credits
 * @relevance for fridays!
