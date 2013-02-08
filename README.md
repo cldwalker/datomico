@@ -1,6 +1,6 @@
 ## Description
 
-Use datomic with less cognitive overhead. Should work with datomic >= 0.8.3524.
+Use datomic with less cognitive overhead. Should work with datomic >= 0.8.3789.
 
 [![Build Status](https://travis-ci.org/cldwalker/datomic-simple.png?branch=master)](https://travis-ci.org/cldwalker/datomic-simple)
 
