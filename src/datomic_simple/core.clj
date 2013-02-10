@@ -60,7 +60,7 @@ datomic's error message: 'Unable to resolve entity: :db.type/'..."
         history?     (boolean (some #{:nohistory} options))
         index?       (boolean (some #{:index} options))
         unique?      (if (some #{:unique} options) :db.unique/value nil)
-        component?   (or (= value-type :component) (some #{:component} options))
+        component?   (or (= value-type :component) (when (some #{:component} options) true))
         type         (if component? :db.type/ref (disallow-invalid-types! (keyword "db.type" (name value-type))))]
 
     (->>

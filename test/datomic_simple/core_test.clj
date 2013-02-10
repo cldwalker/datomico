@@ -67,10 +67,16 @@
           (build-schema :account [[:password-hash :string "XXXX"]])
           first
           :db/doc))))
-  (testing ":component sets correct db attributes"
+  (testing ":component sets correct component attributes"
     (is (= {:db/isComponent true :db/valueType :db.type/ref}
            (->
             (build-schema :comment [[:body :component]])
+            first
+            (select-keys [:db/isComponent :db/valueType])))))
+  (testing ":ref and :component sets correct component attributes"
+    (is (= {:db/isComponent true :db/valueType :db.type/ref}
+           (->
+            (build-schema :comment [[:body :ref :component]])
             first
             (select-keys [:db/isComponent :db/valueType])))))
   (testing "invalid :db/type raises a more helpful error than datomic's default"
