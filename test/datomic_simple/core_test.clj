@@ -5,8 +5,6 @@
             [datomic-simple.test-helper :refer [with-db]]
             [datomic-simple.db :as dsb]))
 
-(defn with-db-setup [])
-
 (defn build-and-transact-schema [nsp attrs]
   (let [data (build-schema nsp attrs)]
     (with-db
