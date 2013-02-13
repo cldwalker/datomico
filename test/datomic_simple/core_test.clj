@@ -2,19 +2,10 @@
   (:require [datomic.api :as d]
             [datomic-simple.core :refer :all]
             [clojure.test :refer :all]
+            [datomic-simple.test-helper :refer [with-db]]
             [datomic-simple.db :as dsb]))
 
-(def datomic-uri "datomic:mem://datomic-simple-test")
-
-(defmacro with-db
-  "Evaluates body with var bound to a connection"
-  [& body]
-  `(let [~'_ (d/create-database datomic-uri)]
-     (binding [dsb/*uri* datomic-uri
-               dsb/*connection* (d/connect datomic-uri)]
-       (try
-         (dsb/with-latest-database (do ~@body))
-         (finally (d/delete-database datomic-uri))))))
+(defn with-db-setup [])
 
 (defn build-and-transact-schema [nsp attrs]
   (let [data (build-schema nsp attrs)]
