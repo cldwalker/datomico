@@ -8,6 +8,7 @@
 (def model :item)
 (model/create-model-fn :create model)
 (model/create-model-fn :find-all model)
+(model/create-model-fn :find-first model)
 
 (defn load-schemas []
   (let [schema (datomic-simple.core/build-schema
@@ -45,3 +46,12 @@
           ent (create {:name "oxygen" :type "element"})
           ent2 (create {:name "oxygen" :type "drink"})]
       (is (= [ent] (find-all {:name "oxygen" :type "element"}))))))
+
+(deftest find-first-test
+  (testing "returns first result"
+    (let [_ (create {:name "apple"})
+          ent (create {:name "banana"})]
+      (is (= ent (find-first {:name "banana"})))))
+  (testing "returns nil if no result found"
+    (create {:name "apple"})
+    (is (nil? (find-first {:name "peach"})))))
