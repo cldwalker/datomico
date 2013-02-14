@@ -13,6 +13,7 @@
   "Queries with given map of attribute names to values and returns a vector of maps with no namespace."
   ([nsp] (map util/localize-attr (action/all nsp)))
   ([nsp query-map]
+    {:pre [(seq query-map)]}
     (map util/localize-attr (action/find-all (util/namespace-keys nsp query-map)))))
 
 (defn expand-ref

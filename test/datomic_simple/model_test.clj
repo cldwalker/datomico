@@ -3,10 +3,15 @@
             [datomic-simple.test-helper :refer [always-with-latest-db]]
             [datomic-simple.db :refer [with-latest-database] :as dsb]
             datomic-simple.core
-            [datomic-simple.model :refer :all]))
+            [datomic-simple.model :refer [find-id] :as model]))
+
+(def model :item)
+(model/create-model-fn :create model)
+(model/create-model-fn :find-all model)
 
 (defn load-schemas []
-  (let [schema (datomic-simple.core/build-schema :item [[:name :string] [:url :uri]])]
+  (let [schema (datomic-simple.core/build-schema
+                model [[:name :string] [:url :uri] [:type :string]])]
     (dsb/load-schemas schema)))
 
 (defmacro testing [str & body]
@@ -17,8 +22,26 @@
 
 (deftest find-id-test
   (testing "finds by id and returns map"
-    (let [ent (create :item {:name "dude"})]
+    (let [ent (create {:name "dude"})]
       (is (= {:id (ent :id) :name "dude"} (find-id (:id ent))))))
   (testing "doesn't find id and returns nil"
-    (let [ent (create :item {:name "dude"})]
+    (let [ent (create {:name "dude"})]
       (is (nil? (find-id (inc (:id ent))))))))
+
+(deftest find-all-test
+  (testing "with no args returns all in namespace"
+    (let [ent (create {:name "water"})]
+      (is (= [ent] (find-all)))))
+  (testing "with an empty map raises AssertionError"
+    (is (thrown? java.lang.AssertionError
+                 (find-all {}))))
+  (testing "with one pair returns correct result"
+    (let [_ (create {:name "nitrogen" :type "element"})
+          ent (create {:name "oxygen" :type "element"})
+          ent2 (create {:name "oxygen" :type "drink"})]
+      (is (= [ent ent2] (find-all {:name "oxygen"})))))
+  (testing "with two pairs returns correct result"
+    (let [_ (create {:name "nitrogen" :type "element"})
+          ent (create {:name "oxygen" :type "element"})
+          ent2 (create {:name "oxygen" :type "drink"})]
+      (is (= [ent] (find-all {:name "oxygen" :type "element"}))))))
