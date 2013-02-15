@@ -22,9 +22,9 @@
   (if (empty? m) nil (util/localize-attr (action/entity->map m))))
 
 (defn delete-all
-  "Delets all entities that match a map-based query."
-  [nsp query-map]
-  (let [results (find-all nsp query-map)]
+  "Deletes all entities that match a map-based query."
+  [nsp & [query-map]]
+  (let [results (if query-map (find-all nsp query-map) (find-all nsp))]
     (when (seq results)
       (apply action/delete (map :id results)))))
 

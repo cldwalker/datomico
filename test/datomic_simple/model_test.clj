@@ -9,6 +9,7 @@
 (model/create-model-fn :create model)
 (model/create-model-fn :find-all model)
 (model/create-model-fn :find-first model)
+(model/create-model-fn :delete-all model)
 
 (defn load-schemas []
   (let [schema (datomic-simple.core/build-schema
@@ -47,6 +48,26 @@
           ent2 (create {:name "oxygen" :type "drink"})]
       (is (= [ent] (find-all {:name "oxygen" :type "element"}))))))
 
+(deftest delete-all-test
+  (testing "with no args deletes all"
+    (create {:name "one"})
+    (create {:name "two"})
+    (assert (= 2 (count (find-all))))
+    (delete-all)
+    (is (= 0 (count (find-all)))))
+  (testing "with matching query deletes one"
+    (create {:name "one"})
+    (create {:name "two"})
+    (assert (= 2 (count (find-all))))
+    (delete-all {:name "one"})
+    (is (= 1 (count (find-all)))))
+  (testing "with no matching query deletes none"
+    (create {:name "one"})
+    (create {:name "two"})
+    (assert (= 2 (count (find-all))))
+    (delete-all {:name "none"})
+    (is (= 2 (count (find-all))))))
+
 (deftest find-first-test
   (testing "returns first result"
     (let [_ (create {:name "apple"})
@@ -54,4 +75,4 @@
       (is (= ent (find-first {:name "banana"})))))
   (testing "returns nil if no result found"
     (create {:name "apple"})
-    (is (nil? (find-first {:name "peach"})))))
+    (is (nil? (find-first {:name "peac"})))))
