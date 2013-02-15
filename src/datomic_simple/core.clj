@@ -5,16 +5,12 @@
             [datomic-simple.db :as db]
             [datomic-simple.util :as util]))
 
-(defn- add-noir-middleware [uri]
-  (@(resolve (symbol "noir.server" "add-middleware")) db/wrap-datomic uri))
-
 (defn- rand-connection []
   (str "datomic:mem://" (java.util.UUID/randomUUID)))
 
 (defn start
   "Start datomic by creating a connection, creating a database and optionally loading schema and
-  seed data.  When calling this from a noir app, appopriate middleware is added so the latest
-  database value and connection are made available.
+  seed data.
   Options:
 
   :uri       Specify a uri string. Defaults to a randomly generated value.
@@ -32,8 +28,6 @@
       (db/load-schemas schemas))
     (when (seq seed-data)
       (db/load-seed-data uri seed-data))
-    (when (some #{"noir.server"} (map str (all-ns)))
-      (add-noir-middleware uri))
     (when repl
       (db/repl-init uri))))
 

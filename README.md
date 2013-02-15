@@ -24,7 +24,7 @@ Defining a model and starting datomic should be easy:
   [:password :string]]))
 
 ; Start datomic and initialize schemas without needing to think of
-; database values and connections or adding middleware (if using noir)
+; database values and connections
 (ns server)
 (require '[datomic-simple.core :as ds])
 (ds/start {:uri "datomic:mem://my-app"
