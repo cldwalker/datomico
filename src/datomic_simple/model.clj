@@ -33,7 +33,7 @@
   [nsp query-map]
   (first (find-all nsp query-map)))
 
-(defn- build-attr [nsp attr]
+(defn build-attr [nsp attr]
   (db/add-new-id (util/namespace-keys nsp attr)))
 
 (defn create

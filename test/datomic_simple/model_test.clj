@@ -1,7 +1,7 @@
 (ns datomic-simple.model-test
   (:require [clojure.test :refer :all :exclude [testing]]
             [datomic-simple.test-helper :refer [always-with-latest-db]]
-            [datomic-simple.db :refer [with-latest-database] :as dsb]
+            [datomic-simple.db :as dsb]
             datomic-simple.core
             [datomic-simple.model :refer [find-id] :as model]))
 
@@ -12,10 +12,11 @@
 (model/create-model-fn :delete-all model)
 (model/create-model-fn :update model)
 (model/create-model-fn :find-or-create model)
+(model/create-model-fn :build-attr model)
 
 (defn load-schemas []
   (let [schema (datomic-simple.core/build-schema
-                model [[:name :string] [:url :uri] [:type :string]])]
+                model [[:name :string] [:type :string]])]
     (dsb/load-schemas schema)))
 
 (defmacro testing [str & body]
@@ -98,6 +99,13 @@
      #(let [ent (find-or-create {:name "singleton"})]
         (is (= "singleton" (:name ent))))
      0)))
+
+(deftest build-attr-test
+  (clojure.test/testing "Generates a namespaced map with a temp id"
+    (let [attr (build-attr {:name "jim" :type "actor"})]
+      (is (= datomic.db.DbId (class (:db/id attr))))
+      (is (= {:item/name "jim" :item/type "actor"}
+             (dissoc attr :db/id))))))
 
 (deftest update-test
   (testing "updates attributes of a given id"
