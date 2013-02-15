@@ -10,6 +10,8 @@
 (model/create-model-fn :find-all model)
 (model/create-model-fn :find-first model)
 (model/create-model-fn :delete-all model)
+(model/create-model-fn :update model)
+(model/create-model-fn :find-or-create model)
 
 (defn load-schemas []
   (let [schema (datomic-simple.core/build-schema
@@ -21,6 +23,12 @@
      (always-with-latest-db
        (load-schemas)
        ~@body)))
+
+(defn count-changes-by [f diff]
+  (let [begin-count (count (find-all))
+        _ (f)
+        end-count (count (find-all))]
+    (is (= diff (- end-count begin-count)))))
 
 (deftest find-id-test
   (testing "finds by id and returns map"
@@ -52,21 +60,15 @@
   (testing "with no args deletes all"
     (create {:name "one"})
     (create {:name "two"})
-    (assert (= 2 (count (find-all))))
-    (delete-all)
-    (is (= 0 (count (find-all)))))
+    (count-changes-by delete-all -2))
   (testing "with matching query deletes one"
     (create {:name "one"})
     (create {:name "two"})
-    (assert (= 2 (count (find-all))))
-    (delete-all {:name "one"})
-    (is (= 1 (count (find-all)))))
+    (count-changes-by #(delete-all {:name "one"}) -1))
   (testing "with no matching query deletes none"
     (create {:name "one"})
     (create {:name "two"})
-    (assert (= 2 (count (find-all))))
-    (delete-all {:name "none"})
-    (is (= 2 (count (find-all))))))
+    (count-changes-by #(delete-all {:name "none"}) 0)))
 
 (deftest find-first-test
   (testing "returns first result"
@@ -76,3 +78,29 @@
   (testing "returns nil if no result found"
     (create {:name "apple"})
     (is (nil? (find-first {:name "peac"})))))
+
+;; yeah, we've been using this everywhere but at least show
+;; what it does
+(deftest create-test
+  (testing "creates an ent and returns its map with id assoc'd in"
+    (let [ent (create {:name "dude"})]
+      (is (integer? (:id ent)))
+      (is (= ent (find-id (:id ent)))))))
+
+(deftest find-or-create-test
+  (testing "creates an ent if none found"
+    (count-changes-by
+     #(find-or-create {:name "singleton"})
+     1))
+  (testing "finds an ent"
+    (create {:name "singleton"})
+    (count-changes-by
+     #(let [ent (find-or-create {:name "singleton"})]
+        (is (= "singleton" (:name ent))))
+     0)))
+
+(deftest update-test
+  (testing "updates attributes of a given id"
+    (let [ent (create {:name "vague"})]
+      (update (:id ent) {:name "specific"})
+      (= ent (find-first {:name "specific"})))))
