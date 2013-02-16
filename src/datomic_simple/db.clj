@@ -11,12 +11,12 @@
 (defn wrap-datomic
   "A Ring middleware that provides a request-consistent database connection and
   value for the life of a request."
-  [handler uri]
-  (fn [request]
-    (let [conn (d/connect uri)]
-      (binding [*connection* conn
-                *db*         (d/db conn)]
-        (handler request)))))
+  ([handler & [uri]]
+     (fn [request]
+       (let [conn (d/connect (or uri *uri*))]
+         (binding [*connection* conn
+                   *db*         (d/db conn)]
+           (handler request))))))
 
 (defn log
   "Logs if *logging* is true"
