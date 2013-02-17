@@ -2,7 +2,7 @@
 
 Use datomic with less cognitive overhead. Should work with datomic >= 0.8.3789.
 
-[![Build Status](https://travis-ci.org/cldwalker/datomic-simple.png?branch=master)](https://travis-ci.org/cldwalker/datomic-simple)
+[![Build Status](https://travis-ci.org/cldwalker/datomico.png?branch=master)](https://travis-ci.org/cldwalker/datomico)
 
 ## Usage
 
@@ -10,7 +10,7 @@ Defining a model and starting datomic should be easy:
 
 ```clojure
 (ns models.user)
-(require '[datomic-simple.core :as ds])
+(require '[datomico.core :as ds])
 
 ; Define a model's database key once and don't think of it again while
 ; interacting with your model
@@ -26,13 +26,13 @@ Defining a model and starting datomic should be easy:
 ; Start datomic and initialize schemas without needing to think of
 ; database values and connections
 (ns server)
-(require '[datomic-simple.core :as ds])
+(require '[datomico.core :as ds])
 (ds/start {:uri "datomic:mem://my-app"
            :schemas [models.user/schema]})
 
 ; Starting in a repl is just as easy, a uri will be auto-generated
 (ns user)
-(require '[datomic-simple.core :as ds])
+(require '[datomico.core :as ds])
 (ds/start {:repl true
            :schemas [models.user/schema]})
 ```
@@ -60,7 +60,7 @@ Creation, updating, deleting and querying should be easy for models:
 
 ## Bugs/Issues
 
-Please report them [on github](http://github.com/cldwalker/datomic-simple/issues).
+Please report them [on github](http://github.com/cldwalker/datomico/issues).
 
 ## License
 
@@ -73,5 +73,5 @@ See LICENSE.TXT
 * @ravster - for tests
 
 ## Links
-* [Sample blog using datomic-simple](https://github.com/cldwalker/datomic-noir-blog)
-* [Sample pastebin using datomic-simple](https://github.com/cldwalker/datomic-refheap)
+* [Sample blog using datomico](https://github.com/cldwalker/datomic-noir-blog)
+* [Sample pastebin using datomico](https://github.com/cldwalker/datomic-refheap)

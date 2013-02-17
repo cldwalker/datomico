@@ -1,9 +1,9 @@
-(ns datomic-simple.core-test
+(ns datomico.core-test
   (:require [datomic.api :as d]
-            [datomic-simple.core :refer :all]
+            [datomico.core :refer :all]
             [clojure.test :refer :all]
-            [datomic-simple.test-helper :refer [with-db]]
-            [datomic-simple.db :as dsb]))
+            [datomico.test-helper :refer [with-db]]
+            [datomico.db :as dsb]))
 
 (defn build-and-transact-schema [nsp attrs]
   (let [data (build-schema nsp attrs)]

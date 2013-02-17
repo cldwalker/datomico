@@ -1,7 +1,7 @@
-(ns datomic-simple.model
-  (:require [datomic-simple.util :as util]
-            [datomic-simple.db :as db]
-            [datomic-simple.action :as action]))
+(ns datomico.model
+  (:require [datomico.util :as util]
+            [datomico.db :as db]
+            [datomico.action :as action]))
 ;;; CRUD db action that scope to a datomic model/namespace i.e. :user
 
 (defn find-id
@@ -55,8 +55,8 @@
   (action/update id (util/namespace-keys nsp attr)))
 
 (defmacro create-model-fn
-  "Creates a local function that wraps a datomic-simple fn with a keyword namespace (model scope)."
+  "Creates a local function that wraps a datomico fn with a keyword namespace (model scope)."
   [fn-name nsp]
   `(do
     (def ~(symbol (name fn-name))
-      (partial ~(deref (resolve (symbol "datomic-simple.model" (name fn-name)))) ~nsp))))
+      (partial ~(deref (resolve (symbol "datomico.model" (name fn-name)))) ~nsp))))

@@ -1,6 +1,6 @@
-(defproject datomic-simple "0.1.0"
+(defproject datomico "0.1.0"
   :description "Use datomic with less cognitive overhead"
-  :url "http://github.com/cldwalker/datomic-simple"
+  :url "http://github.com/cldwalker/datomico"
   :license {:name "The MIT License"
             :url "https://en.wikipedia.org/wiki/MIT_License"}
   :dependencies [[org.clojure/clojure "1.4.0"]]

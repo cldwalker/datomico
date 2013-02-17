@@ -1,9 +1,9 @@
-(ns datomic-simple.core
+(ns datomico.core
   (:require [datomic.api :as api]
-            [datomic-simple.model :as dm]
-            datomic-simple.action
-            [datomic-simple.db :as db]
-            [datomic-simple.util :as util]))
+            [datomico.model :as dm]
+            datomico.action
+            [datomico.db :as db]
+            [datomico.util :as util]))
 
 (defn- rand-connection []
   (str "datomic:mem://" (java.util.UUID/randomUUID)))
@@ -105,9 +105,9 @@ datomic's error message: 'Unable to resolve entity: :db.type/'..."
   [nsp attrs]
   (map (partial util/namespace-keys nsp) attrs))
 
-(def find-id datomic-simple.model/find-id)
-(def expand-ref datomic-simple.model/expand-ref)
-(def delete datomic-simple.action/delete)
+(def find-id datomico.model/find-id)
+(def expand-ref datomico.model/expand-ref)
+(def delete datomico.action/delete)
 
 ; TODO: allow user to pass in which fns they want to create
 (defmacro create-model-fns

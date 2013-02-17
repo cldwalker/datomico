@@ -1,5 +1,5 @@
-(ns datomic-simple.util-test
-  (:require [datomic-simple.util :as util]
+(ns datomico.util-test
+  (:require [datomico.util :as util]
             [clojure.test :refer :all]))
 
 (deftest localize-attr-test

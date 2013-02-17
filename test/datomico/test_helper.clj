@@ -1,8 +1,8 @@
-(ns datomic-simple.test-helper
+(ns datomico.test-helper
   (:require [datomic.api :as d]
-            [datomic-simple.db :as dsb]))
+            [datomico.db :as dsb]))
 
-(def datomic-uri "datomic:mem://datomic-simple-test")
+(def datomic-uri "datomic:mem://datomico-test")
 
 (defmacro with-db
   "Wraps a body in a datomic connection, db and uri. If any updates are made
