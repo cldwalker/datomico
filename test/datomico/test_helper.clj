@@ -22,7 +22,7 @@ This is purely a testing convenience. DO NOT use in production."
   `(let [~'_ (d/create-database datomic-uri)]
      (binding [db/*uri* datomic-uri
                db/*connection* (d/connect datomic-uri)]
-       (db/repl-init db/*uri*)
+       (db/init-dynamic-variables db/*uri*)
        (try
          (do ~@body)
          (finally (d/delete-database datomic-uri))))))

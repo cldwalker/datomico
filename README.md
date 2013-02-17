@@ -33,7 +33,7 @@ Defining a model and starting datomic should be easy:
 ; Starting in a repl is just as easy, a uri will be auto-generated
 (ns user)
 (require '[datomico.core :as dc])
-(dc/start {:repl true
+(dc/start {:dynamic-vars true
            :schemas [models.user/schema]})
 ```
 

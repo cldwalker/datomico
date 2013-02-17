@@ -13,14 +13,15 @@
   seed data.
   Options:
 
-  :uri       Specify a uri string. Defaults to a randomly generated value.
-  :schemas   A vector of schemas, each schema representing a model. A schema is a vector of maps,
-             each requiring 3 attributes. They can be simply defined using build-schema. Default is nil.
-  :seed-data A vector of vectors, each subvector representing seed data for a model. This is loaded
-             after schemas. Default is nil.
-  :repl      A boolean when enabled that allows all datomic fns in the repl to work. Default is false.
-  "
-  [{:keys [uri schemas seed-data repl]}]
+  :uri           Specify a uri string. Defaults to a randomly generated value.
+  :schemas       A vector of schemas, each schema representing a model. A schema is a vector of maps,
+                 each requiring 3 attributes. They can be simply defined using build-schema. Default is nil.
+  :seed-data     A vector of vectors, each subvector representing seed data for a model. This is loaded
+                 after schemas. Default is nil.
+  :dynamic-vars  A boolean that enables auto-setting db dynamic variables to most recent db version.
+                 Useful for repl or tests where performance doesn't matter. *Not* recommended for
+                 application code. Default is false."
+  [{:keys [uri schemas seed-data dynamic-vars]}]
   (let [uri (or uri (rand-connection))]
     (db/set-uri uri)
     (api/create-database uri)
@@ -28,8 +29,8 @@
       (db/load-schemas schemas))
     (when (seq seed-data)
       (db/load-seed-data uri seed-data))
-    (when repl
-      (db/repl-init uri))))
+    (when dynamic-vars
+      (db/init-dynamic-variables uri))))
 
 (def valid-types
   "Defines allowed values for :db/valueType. For more info on each type see allowed

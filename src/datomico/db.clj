@@ -23,7 +23,7 @@
   [& args]
   (when *logging* (apply prn args)))
 
-; *db* fns - these get overriden by repl-init in a repl
+; *db* fns - these get overriden by init-dynamic-variables
 (defn q [query & args] (log query args) (apply d/q query *db* args))
 (defn entity [id] (d/entity *db* id))
 (defn resolve-tempid [tempids tempid] (d/resolve-tempid *db* tempids tempid))
@@ -41,8 +41,8 @@ is already bound."
      ~@body))
 
 ; TODO: Wrap around fns with dynamic variables without needing to respecify their implementation
-(defn repl-init
-  "Initializes repl by setting all required dynamic variables and wrapping datomic fns with them."
+(defn init-dynamic-variables
+  "Sets dynamic vars and wraps datomic fns with them."
   [uri]
   (def ^:dynamic *connection* (d/connect uri))
   (defn q [query & args] (with-bound-or-latest-database (log query args) (apply d/q query *db* args)))
