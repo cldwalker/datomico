@@ -1,6 +1,6 @@
 (ns datomico.test-helper
   (:require [datomic.api :as d]
-            [datomico.db :as dsb]))
+            [datomico.db :as db]))
 
 (def datomic-uri "datomic:mem://datomico-test")
 
@@ -9,10 +9,10 @@
 to *db*, you must rebind *db* to the latest database."
   [& body]
   `(let [~'_ (d/create-database datomic-uri)]
-     (binding [dsb/*uri* datomic-uri
-               dsb/*connection* (d/connect datomic-uri)]
+     (binding [db/*uri* datomic-uri
+               db/*connection* (d/connect datomic-uri)]
        (try
-         (dsb/with-latest-database (do ~@body))
+         (db/with-latest-database (do ~@body))
          (finally (d/delete-database datomic-uri))))))
 
 (defmacro always-with-latest-db
@@ -20,9 +20,9 @@ to *db*, you must rebind *db* to the latest database."
 This is purely a testing convenience. DO NOT use in production."
   [& body]
   `(let [~'_ (d/create-database datomic-uri)]
-     (binding [dsb/*uri* datomic-uri
-               dsb/*connection* (d/connect datomic-uri)]
-       (dsb/repl-init dsb/*uri*)
+     (binding [db/*uri* datomic-uri
+               db/*connection* (d/connect datomic-uri)]
+       (db/repl-init db/*uri*)
        (try
          (do ~@body)
          (finally (d/delete-database datomic-uri))))))

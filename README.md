@@ -10,7 +10,7 @@ Defining a model and starting datomic should be easy:
 
 ```clojure
 (ns models.user)
-(require '[datomico.core :as ds])
+(require '[datomico.core :as dc])
 
 ; Define a model's database key once and don't think of it again while
 ; interacting with your model
@@ -19,21 +19,21 @@ Defining a model and starting datomic should be easy:
 ; Build schemas easily without needing to think of partitions and a number of
 ; internal schema attributes. Basically you don't have to pour over
 ; http://docs.datomic.com/schema.html
-(def schema (ds/build-schema model-namespace
+(def schema (dc/build-schema model-namespace
   [[:username :string]
   [:password :string]]))
 
 ; Start datomic and initialize schemas without needing to think of
 ; database values and connections
 (ns server)
-(require '[datomico.core :as ds])
-(ds/start {:uri "datomic:mem://my-app"
+(require '[datomico.core :as dc])
+(dc/start {:uri "datomic:mem://my-app"
            :schemas [models.user/schema]})
 
 ; Starting in a repl is just as easy, a uri will be auto-generated
 (ns user)
-(require '[datomico.core :as ds])
-(ds/start {:repl true
+(require '[datomico.core :as dc])
+(dc/start {:repl true
            :schemas [models.user/schema]})
 ```
 
@@ -42,7 +42,7 @@ Creation, updating, deleting and querying should be easy for models:
 ```clojure
 (ns models.user)
 ; creates several helper functions that scope your database interaction to the model.
-(ds/create-model-fns model-namespace)
+(dc/create-model-fns model-namespace)
 
 (create {:username "dodo" :password "bird"})
 ; => {:username "dodo" :password "bird" :id 1024053}
@@ -52,7 +52,7 @@ Creation, updating, deleting and querying should be easy for models:
 ; => {:username "dodo" :password "bird" :id 1024053}
 
 (update 1024053 {:username "big"})
-(ds/delete 1024053)
+(dc/delete 1024053)
 ```
 
 ## TODO

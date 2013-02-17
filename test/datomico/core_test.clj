@@ -3,12 +3,12 @@
             [datomico.core :refer :all]
             [clojure.test :refer :all]
             [datomico.test-helper :refer [with-db]]
-            [datomico.db :as dsb]))
+            [datomico.db :as db]))
 
 (defn build-and-transact-schema [nsp attrs]
   (let [data (build-schema nsp attrs)]
     (with-db
-      @(d/transact dsb/*connection* data))
+      @(d/transact db/*connection* data))
     data))
 
 (deftest build-schema-test
@@ -77,4 +77,4 @@
   (testing "invalid :db/type raises a more helpful error than datomic's default"
     (with-db
       (is (thrown-with-msg? java.util.concurrent.ExecutionException #":db.type/doh is not.*valid"
-            @(d/transact dsb/*connection* (build-schema :user [[:name :doh]])))))))
+            @(d/transact db/*connection* (build-schema :user [[:name :doh]])))))))

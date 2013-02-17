@@ -1,7 +1,7 @@
 (ns datomico.model-test
   (:require [clojure.test :refer :all :exclude [testing]]
             [datomico.test-helper :refer [always-with-latest-db]]
-            [datomico.db :as dsb]
+            [datomico.db :as db]
             datomico.core
             [datomico.model :refer [find-id] :as model]))
 
@@ -17,7 +17,7 @@
 (defn load-schemas []
   (let [schema (datomico.core/build-schema
                 model [[:name :string] [:type :string]])]
-    (dsb/load-schemas schema)))
+    (db/load-schemas schema)))
 
 (defmacro testing [str & body]
   `(clojure.test/testing ~str
