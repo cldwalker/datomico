@@ -12,7 +12,7 @@
 (model/create-model-fn :delete-all model)
 (model/create-model-fn :update model)
 (model/create-model-fn :find-or-create model)
-(model/create-model-fn :build-attr model)
+(model/create-model-fn :create-tx model)
 (model/create-model-fn :delete-value model)
 (model/create-model-fn :delete-value-tx model)
 
@@ -102,12 +102,16 @@
         (is (= "singleton" (:name ent))))
      0)))
 
-(deftest build-attr-test
+(deftest create-tx-test
   (clojure.test/testing "Generates a namespaced map with a temp id"
-    (let [attr (build-attr {:name "jim" :type "actor"})]
+    (let [attr (create-tx {:name "jim" :type "actor"})]
       (is (= datomic.db.DbId (class (:db/id attr))))
       (is (= {:item/name "jim" :item/type "actor"}
-             (dissoc attr :db/id))))))
+             (dissoc attr :db/id)))))
+  (clojure.test/testing "Moves :id to :db/id if given one"
+    (let [attr (create-tx {:name "jim" :type "actor" :id -1000})]
+      (is (= {:db/id -1000 :item/name "jim" :item/type "actor"}
+             attr)))))
 
 (deftest update-test
   (testing "updates attributes of a given id"

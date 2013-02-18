@@ -28,18 +28,23 @@
     (when (seq results)
       (apply action/delete (map :id results)))))
 
+; TODO: limit query to one result
 (defn find-first
   "Given a map-based query, returns first result as a map with no namespace or nil."
   [nsp query-map]
   (first (find-all nsp query-map)))
 
-(defn build-attr [nsp attr]
-  (db/add-new-id (util/namespace-keys nsp attr)))
+(defn create-tx
+  "Returns transactable data for create. If attr has an :id, it gets translated to :db/id."
+  [nsp attr]
+  (if (:id attr)
+    (assoc (util/namespace-keys nsp (dissoc attr :id)) :db/id (:id attr))
+    (db/add-new-id (util/namespace-keys nsp attr))))
 
 (defn create
   "Creates an entity given a map and returns the created map with its new id in :id."
   [nsp attr]
-  (let [nsp-attr (build-attr nsp attr)
+  (let [nsp-attr (create-tx nsp attr)
         tx-result (db/transact! [nsp-attr])
         new-id (db/resolve-tempid (:tempids tx-result) (:db/id nsp-attr))]
     (merge attr {:id new-id})))
