@@ -16,6 +16,11 @@
   (merge (select-keys e (keys e))
          {:db/id (:db/id e)}))
 
+(defn id->map
+  "Fetches map for id"
+  [id]
+  (entity->map (db/entity id)))
+
 (defn where
   "Queries with datomic.api/q and converts results into a vector of maps."
   [query & args]
