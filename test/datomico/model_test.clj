@@ -3,10 +3,11 @@
             [datomico.test-helper :refer [always-with-latest-db]]
             [datomico.db :as db]
             datomico.core
-            [datomico.model :refer [find-id] :as model]))
+            [datomico.model :as model]))
 
 (def model :item)
 (model/create-model-fn :create model)
+(model/create-model-fn :find-id model)
 (model/create-model-fn :find-all model)
 (model/create-model-fn :find-first model)
 (model/create-model-fn :delete-all model)

@@ -1,13 +1,19 @@
 (ns datomico.model
+  "Useful fns for an entity type that has all its attributes in the same namespace."
   (:require [datomico.util :as util]
             [datomico.db :as db]
             [datomico.action :as action]))
-;;; CRUD db action that scope to a datomic model/namespace i.e. :user
 
-(defn find-id
-  "If entity is found, returns it as a map with no namespace. Otherwise returns nil."
-  [id]
-  (if-let [m (action/find-id id)] (util/localize-attr m)))
+(defn find-id [nsp id]
+  "If entity is found, returns it as a map with no namespace. Otherwise returns nil.
+Also ensures that only an entity belonging to this namespace is returned."
+  (when-let [ent (action/find-id id)]
+    (when
+        (every?
+         (fn [[k v]]
+           (= (name nsp) (namespace k)))
+         (dissoc ent :db/id))
+      (util/localize-attr ent))))
 
 (defn find-all
   "Queries with given map of attribute names to values and returns a vector of maps with no namespace."
