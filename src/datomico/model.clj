@@ -54,6 +54,16 @@
   [nsp id attr]
   (action/update id (util/namespace-keys nsp attr)))
 
+(defn delete-value
+  "Deletes entity value for give attribute and value."
+  [nsp id attr value]
+  (action/delete-value id (keyword (name nsp) (name attr)) value))
+
+(defn delete-value-tx
+  "Returns transactable data for delete-value."
+  [nsp id attr value]
+  (action/delete-value-tx id (keyword (name nsp) (name attr)) value))
+
 (defmacro create-model-fn
   "Creates a local function that wraps a datomico fn with a keyword namespace (model scope)."
   [fn-name nsp]

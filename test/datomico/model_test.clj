@@ -13,6 +13,8 @@
 (model/create-model-fn :update model)
 (model/create-model-fn :find-or-create model)
 (model/create-model-fn :build-attr model)
+(model/create-model-fn :delete-value model)
+(model/create-model-fn :delete-value-tx model)
 
 (defn load-schemas []
   (let [schema (datomico.core/build-schema
@@ -112,3 +114,14 @@
     (let [ent (create {:name "vague"})]
       (update (:id ent) {:name "specific"})
       (= ent (find-first {:name "specific"})))))
+
+(deftest delete-value-test
+  (testing "deletes value for attribute"
+    (let [ent (create {:name "forgetfulness" :type "memory"})]
+      (delete-value (:id ent) :type "memory")
+      (let [new-ent (find-id (:id ent))]
+        (is (= {:name "forgetfulness"} (dissoc new-ent :id)))))))
+
+(deftest delete-value-tx-test
+  (clojure.test/testing "returns tx data for delete-value"
+    (is (= [:db/retract 100 :item/type "fake"] (delete-value-tx 100 :type "fake")))))
