@@ -82,7 +82,10 @@
       (is (= (list [:db.fn/retractEntity (:id ent)]) (delete-all-tx {:name "one"}))))))
 
 (deftest find-first-test
-  (testing "returns first result"
+  (testing "with no arg returns first result"
+    (let [ent (create {:name "banana"})]
+      (is (= ent (find-first)))))
+  (testing "with one arg returns first result"
     (let [_ (create {:name "apple"})
           ent (create {:name "banana"})]
       (is (= ent (find-first {:name "banana"})))))

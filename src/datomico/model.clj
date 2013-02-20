@@ -43,8 +43,10 @@ Also ensures that only an entity belonging to this namespace is returned."
 ; TODO: limit query to one result
 (defn find-first
   "Given a map-based query, returns first result as a map with no namespace or nil."
-  [nsp query-map]
-  (first (find-all nsp query-map)))
+  ([nsp]
+     (first (find-all nsp)))
+  ([nsp query-map]
+     (first (find-all nsp query-map))))
 
 (defn create-tx
   "Returns transactable data for create. If attr has an :id, it gets translated to :db/id."
