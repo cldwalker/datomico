@@ -63,10 +63,15 @@
   (let [ent (db/entity (num-id id))]
     (if-not (empty? ent) (entity->map ent))))
 
+(defn delete-tx
+  "Returns transactable data for delete."
+  [ids]
+  (map #(vec [:db.fn/retractEntity (num-id %)]) ids))
+
 (defn delete
   "Deletes given ids."
   [& ids]
-  (db/transact! (map #(vec [:db.fn/retractEntity (num-id %)]) ids)))
+  (db/transact! (delete-tx ids)))
 
 ;; could make value optional by just fetching it
 (defn delete-value-tx [id attr value]

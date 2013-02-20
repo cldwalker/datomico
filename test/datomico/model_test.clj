@@ -1,5 +1,5 @@
 (ns datomico.model-test
-  (:require [clojure.test :refer :all :exclude [testing]]
+  (:require [clojure.test :refer :all :exclude [testing] :as ct]
             [datomico.test-helper :refer [always-with-latest-db]]
             [datomico.db :as db]
             datomico.core
@@ -10,6 +10,7 @@
 (model/create-model-fn :find-all model)
 (model/create-model-fn :find-first model)
 (model/create-model-fn :delete-all model)
+(model/create-model-fn :delete-all-tx model)
 (model/create-model-fn :find-or-create model)
 (model/create-model-fn :update model)
 (model/create-model-fn :update-tx model)
@@ -75,6 +76,11 @@
     (create {:name "two"})
     (count-changes-by #(delete-all {:name "none"}) 0)))
 
+(deftest delete-all-tx-test
+  (testing "returns tx data for delete-all"
+    (let [ent (create {:name "one"})]
+      (is (= (list [:db.fn/retractEntity (:id ent)]) (delete-all-tx {:name "one"}))))))
+
 (deftest find-first-test
   (testing "returns first result"
     (let [_ (create {:name "apple"})
@@ -105,12 +111,12 @@
      0)))
 
 (deftest create-tx-test
-  (clojure.test/testing "Generates a namespaced map with a temp id"
+  (ct/testing "Generates a namespaced map with a temp id"
     (let [attr (create-tx {:name "jim" :type "actor"})]
       (is (= datomic.db.DbId (class (:db/id attr))))
       (is (= {:item/name "jim" :item/type "actor"}
              (dissoc attr :db/id)))))
-  (clojure.test/testing "Moves :id to :db/id if given one"
+  (ct/testing "Moves :id to :db/id if given one"
     (let [attr (create-tx {:name "jim" :type "actor" :id -1000})]
       (is (= {:db/id -1000 :item/name "jim" :item/type "actor"}
              attr)))))
@@ -122,7 +128,7 @@
       (= ent (find-first {:name "specific"})))))
 
 (deftest update-tx-test
-  (clojure.test/testing "updates attributes of a given id"
+  (ct/testing "returns tx data for update"
     (is (= {:item/name "specific" :db/id -100})
         (update-tx -100 {:name "specific"}))))
 
@@ -134,5 +140,5 @@
         (is (= {:name "forgetfulness"} (dissoc new-ent :id)))))))
 
 (deftest delete-value-tx-test
-  (clojure.test/testing "returns tx data for delete-value"
+  (ct/testing "returns tx data for delete-value"
     (is (= [:db/retract 100 :item/type "fake"] (delete-value-tx 100 :type "fake")))))

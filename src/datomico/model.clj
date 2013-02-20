@@ -27,12 +27,18 @@ Also ensures that only an entity belonging to this namespace is returned."
   [m]
   (if (empty? m) nil (util/localize-attr (action/entity->map m))))
 
-(defn delete-all
-  "Deletes all entities that match a map-based query."
+(defn delete-all-tx
+  "Returns transactable data for delete-all."
   [nsp & [query-map]]
   (let [results (if query-map (find-all nsp query-map) (find-all nsp))]
     (when (seq results)
-      (apply action/delete (map :id results)))))
+      (action/delete-tx (map :id results)))))
+
+(defn delete-all
+  "Deletes all entities that match a map-based query."
+  [nsp & [query-map]]
+  (when-let [txes (delete-all-tx nsp query-map)]
+    (db/transact! txes)))
 
 ; TODO: limit query to one result
 (defn find-first
