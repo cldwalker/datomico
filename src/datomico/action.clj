@@ -70,14 +70,10 @@
 
 ;; could make value optional by just fetching it
 (defn delete-value-tx [id attr value]
+  "Generates transaction data to delete value from entity."
   [:db/retract id attr value])
 
-(defn delete-value
-  "Deletes value from entity"
-  [id attr value]
-  (db/transact! [(delete-value-tx id attr value)]))
-
-(defn update
+(defn update-tx
   "Updates given id with map of attributes."
   [id attr]
-  (db/transact! [(merge attr {:db/id (num-id id)})]))
+  (merge attr {:db/id (num-id id)}))

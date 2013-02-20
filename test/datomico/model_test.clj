@@ -6,13 +6,14 @@
             [datomico.model :as model]))
 
 (def model :item)
-(model/create-model-fn :create model)
 (model/create-model-fn :find-id model)
 (model/create-model-fn :find-all model)
 (model/create-model-fn :find-first model)
 (model/create-model-fn :delete-all model)
-(model/create-model-fn :update model)
 (model/create-model-fn :find-or-create model)
+(model/create-model-fn :update model)
+(model/create-model-fn :update-tx model)
+(model/create-model-fn :create model)
 (model/create-model-fn :create-tx model)
 (model/create-model-fn :delete-value model)
 (model/create-model-fn :delete-value-tx model)
@@ -119,6 +120,11 @@
     (let [ent (create {:name "vague"})]
       (update (:id ent) {:name "specific"})
       (= ent (find-first {:name "specific"})))))
+
+(deftest update-tx-test
+  (clojure.test/testing "updates attributes of a given id"
+    (is (= {:item/name "specific" :db/id -100})
+        (update-tx -100 {:name "specific"}))))
 
 (deftest delete-value-test
   (testing "deletes value for attribute"

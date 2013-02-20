@@ -60,20 +60,25 @@ Also ensures that only an entity belonging to this namespace is returned."
   [nsp attr]
   (or (find-first nsp attr) (create nsp attr)))
 
+(defn update-tx
+  "Returns transactable data for update."
+  [nsp id attr]
+  (action/update-tx id (util/namespace-keys nsp attr)))
+
 (defn update
   "Updates given id with map of attributes."
   [nsp id attr]
-  (action/update id (util/namespace-keys nsp attr)))
-
-(defn delete-value
-  "Deletes entity value for give attribute and value."
-  [nsp id attr value]
-  (action/delete-value id (keyword (name nsp) (name attr)) value))
+  (db/transact! [(update-tx nsp id attr)]))
 
 (defn delete-value-tx
   "Returns transactable data for delete-value."
   [nsp id attr value]
   (action/delete-value-tx id (keyword (name nsp) (name attr)) value))
+
+(defn delete-value
+  "Deletes entity value for give attribute and value."
+  [nsp id attr value]
+  (db/transact! [(delete-value-tx nsp id attr value)]))
 
 (defmacro create-model-fn
   "Creates a local function that wraps a datomico fn with a keyword namespace (model scope)."
