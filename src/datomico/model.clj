@@ -4,9 +4,10 @@
             [datomico.db :as db]
             [datomico.action :as action]))
 
-(defn find-id [nsp id]
+(defn find-id
   "If entity is found, returns it as a map with no namespace. Otherwise returns nil.
 Also ensures that only an entity belonging to this namespace is returned."
+  [nsp id]
   (when-let [ent (action/find-id id)]
     (when
         (every?
@@ -26,6 +27,17 @@ Also ensures that only an entity belonging to this namespace is returned."
   "Given the value from a field that is of type ref, expands the relationship to return its map."
   [m]
   (if (empty? m) nil (util/localize-attr (action/entity->map m))))
+
+(defn delete
+  "Only deletes id if it belongs to this namespace."
+  [nsp id]
+  (when-let [ent (action/find-id id)]
+    (when
+        (every?
+         (fn [[k v]]
+           (= (name nsp) (namespace k)))
+         (dissoc ent :db/id))
+      (action/delete id))))
 
 (defn delete-all-tx
   "Returns transactable data for delete-all."

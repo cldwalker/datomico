@@ -9,6 +9,7 @@
 (model/create-model-fn :find-id model)
 (model/create-model-fn :find-all model)
 (model/create-model-fn :find-first model)
+(model/create-model-fn :delete model)
 (model/create-model-fn :delete-all model)
 (model/create-model-fn :delete-all-tx model)
 (model/create-model-fn :find-or-create model)
@@ -61,6 +62,14 @@
           ent (create {:name "oxygen" :type "element"})
           ent2 (create {:name "oxygen" :type "drink"})]
       (is (= [ent] (find-all {:name "oxygen" :type "element"}))))))
+
+(deftest delete-test
+  (testing "deletes id if correct namespace"
+    (let [ent (create {:name "one"})]
+      (count-changes-by #(delete (:id ent)) -1)))
+  (testing "does not delete id if correct namespace"
+    (let [ent (create {:name "one"})]
+      (count-changes-by #(delete 10) 0))))
 
 (deftest delete-all-test
   (testing "with no args deletes all"
