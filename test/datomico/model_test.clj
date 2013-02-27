@@ -41,9 +41,14 @@
   (testing "finds by id and returns map"
     (let [ent (create {:name "dude"})]
       (is (= {:id (ent :id) :name "dude"} (find-id (:id ent))))))
+  (testing "finds by string id and returns map"
+    (let [ent (create {:name "dude"})]
+      (is (= {:id (ent :id) :name "dude"} (find-id (str (:id ent)))))))
   (testing "doesn't find id and returns nil"
     (let [ent (create {:name "dude"})]
-      (is (nil? (find-id (inc (:id ent))))))))
+      (is (nil? (find-id (inc (:id ent)))))))
+  (testing "nil id returns nil"
+    (is (nil? (find-id nil)))))
 
 (deftest find-all-test
   (testing "with no args returns all in namespace"

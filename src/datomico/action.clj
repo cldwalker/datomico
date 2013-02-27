@@ -60,8 +60,9 @@
 (defn find-id
   "If entity is found for id, return it as a map. Otherwise return nil."
   [id]
-  (let [ent (db/entity (num-id id))]
-    (if-not (empty? ent) (entity->map ent))))
+  (when id
+    (let [ent (db/entity (num-id id))]
+      (when-not (empty? ent) (entity->map ent)))))
 
 (defn delete-tx
   "Returns transactable data for delete."
