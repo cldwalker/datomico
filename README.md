@@ -23,14 +23,7 @@ Defining a model and starting datomic should be easy:
   [[:username :string]
   [:password :string]]))
 
-; Start datomic and initialize schemas without needing to think of
-; database values and connections
-(ns server)
-(require '[datomico.core :as dc])
-(dc/start {:uri "datomic:mem://my-app"
-           :schemas [models.user/schema]})
-
-; Starting in a repl is just as easy, a uri will be auto-generated
+; Starting in a repl is easy;  a uri, db and connection will be auto-generated
 (ns user)
 (require '[datomico.core :as dc])
 (dc/start {:dynamic-vars true
@@ -54,6 +47,26 @@ Creation, updating, deleting and querying should be easy for models:
 (update 1024053 {:username "big"})
 (dc/delete 1024053)
 ```
+
+For actual production code, it is *not* recommended to use
+`:dynamic-vars`. Instead, you should be more explicit about handling your
+`*db*` and `*connection*` as `:dynamic-vars` incurs a performance
+penalty in exchange for convenience. For example, a ring app should
+start datomic with:
+
+```clojure
+(dc/start {:uri "datomic:mem://my-app"
+           :schemas [models.user/schema]})
+```
+
+Then, your ring app should use datomico's ring middleware to
+explicitly define `*db*` and `*connection*` for the duration of a web request:
+
+```clojure
+(-> app datomico.db/wrap-datomic)
+```
+
+Look at `wrap-datomic`'s implementation if not in a ring context.
 
 ## TODO
 * More tests!
