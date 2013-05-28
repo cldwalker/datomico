@@ -48,11 +48,12 @@ Creation, updating, deleting and querying should be easy for models:
 (dc/delete 1024053)
 ```
 
-For actual production code, it is *not* recommended to use
-`:dynamic-vars`. Instead, you should be more explicit about handling your
-`*db*` and `*connection*` as `:dynamic-vars` incurs a performance
-penalty in exchange for convenience. For example, a ring app should
-start datomic with:
+## Dynamic Binding
+
+For actual production code, it is *not* recommended to use `:dynamic-vars` with
+`datomico.core/start`. Instead, you should be more explicit about handling your `*db*` and
+`*connection*` as `:dynamic-vars` incurs a performance penalty in exchange for convenience. For
+example, a ring app should start datomic with:
 
 ```clojure
 (dc/start {:uri "datomic:mem://my-app"
