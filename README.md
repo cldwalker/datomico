@@ -9,7 +9,7 @@ encouraged. Should work with datomic >= 0.8.3789.
 
 Add to your project.clj:
 
-  [datomico "0.2.0"]
+    [datomico "0.2.0"]
 
 ## Usage
 
