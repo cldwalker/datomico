@@ -13,7 +13,7 @@ Add to your project.clj:
 
 ## Usage
 
-Let's build and start a datomic entity type with `build-schema` and `start`:
+Let's build a datomic entity type and start datomic with `build-schema` and `start`:
 
 ```clojure
 (ns models.user)
