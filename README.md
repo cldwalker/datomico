@@ -117,6 +117,8 @@ See LICENSE.TXT
 * @ravster - for tests
 
 ## Links
+* [demonic](https://github.com/zololabs/demonic) - Datomic utils for testing, batch commits, schema definitions, and more
+* [adi](https://github.com/zcaudate/adi) - An Object/Map Based Syntax for Datomic
 * [Sample blog using datomico](https://github.com/cldwalker/datomic-noir-blog) - Needs to be
   updated. Last known working commit - 50da3787e11608a98ed54220a371c7035ccdfa12.
 * [Sample pastebin using datomico](https://github.com/cldwalker/datomic-refheap) - Needs to be
