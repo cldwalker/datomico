@@ -1,4 +1,4 @@
-(defproject datomico "0.1.0"
+(defproject datomico "0.2.0"
   :description "Use datomic with intention revealing names"
   :url "http://github.com/cldwalker/datomico"
   :license {:name "The MIT License"
