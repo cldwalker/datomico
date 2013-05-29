@@ -30,7 +30,7 @@ Defining a model and starting datomic should be easy:
            :schemas [models.user/schema]})
 ```
 
-Creation, updating, deleting and querying should be easy for models:
+Creating, updating, deleting and querying should be easy for models:
 
 ```clojure
 (ns models.user)
@@ -47,6 +47,36 @@ Creation, updating, deleting and querying should be easy for models:
 (update 1024053 {:username "big"})
 (dc/delete 1024053)
 ```
+
+## Transacting Batch Data
+
+To transact data in batches, datomico provides *-tx corollaries to fns in `datomico.action` and
+`datomico.model`. These fns generate transaction data which can be batched and transacted as needed.
+
+For this example, assume we're in a url model that has string attributes :name and :desc and a many ref with :tags.
+Let's create a new entity that associates itself with two existing entities "clojure" and "database". We'll use
+`create`'s corollary `create-tx` to do this
+
+```clojure
+(ns models.url
+  (:require [datomico.db :as db]
+            [datomic.model :as model]))
+
+(def model-namespace :url)
+(def find-first (partial model/find-first model-namespace))
+(def create-tx (partial model/create-tx model-namespace))
+
+(let [input {:name "http://datomic.com" :desc "DESC" :tags ["clojure" "database"]}
+      new-map (create-tx (dissoc input :tags))]
+  (->> (:tags input)
+       (map #(find-first {:name %}))
+       (map #(create-tx {:id (:db/id new-map) :tags (:id %)}))
+       (cons new-map)
+       db/transact!))
+```
+
+Note that `create-tx` provides `:db/id` which is a tempid you can use to associate it to other entities
+in the same transaction.
 
 ## Dynamic Binding
 
