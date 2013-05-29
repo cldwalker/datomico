@@ -1,12 +1,19 @@
 ## Description
 
-Use datomic with less cognitive overhead. Should work with datomic >= 0.8.3789.
+Use datomic with intention revealing names. Ease of use and sticking to datomic's principles are
+encouraged. Should work with datomic >= 0.8.3789.
 
 [![Build Status](https://travis-ci.org/cldwalker/datomico.png?branch=master)](https://travis-ci.org/cldwalker/datomico)
 
+## Install
+
+Add to your project.clj:
+
+  [datomico "0.1.0"]
+
 ## Usage
 
-Defining a model and starting datomic should be easy:
+Let's build and start a datomic entity type with `build-schema` and `start`:
 
 ```clojure
 (ns models.user)
@@ -30,7 +37,7 @@ Defining a model and starting datomic should be easy:
            :schemas [models.user/schema]})
 ```
 
-Creating, updating, deleting and querying should be easy for models:
+Let's create, update, delete and query entity types with `create`, `update`, `delete` and `find-all`:
 
 ```clojure
 (ns models.user)
@@ -75,7 +82,7 @@ Let's create a new entity that associates itself with two existing entities "clo
        db/transact!))
 ```
 
-Note that `create-tx` provides `:db/id` which is a tempid you can use to associate it to other entities
+Note that `create-tx` provides `:db/id` with a tempid you can use to associate it to other entities
 in the same transaction.
 
 ## Dynamic Binding
