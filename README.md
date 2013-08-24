@@ -24,7 +24,7 @@ Let's build a datomic entity type and start datomic with `build-schema` and `sta
 (def model-namespace :user)
 
 ; Build schemas easily without needing to think of partitions and a number of
-; internal schema attributes. Basically you don't have to pour over
+; internal schema attributes. Basically you don't have to pore over
 ; http://docs.datomic.com/schema.html
 (def schema (dc/build-schema model-namespace
   [[:username :string]
