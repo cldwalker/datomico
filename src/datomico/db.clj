@@ -5,7 +5,7 @@
 (def ^{:dynamic true :doc "Datomic uri available to all datomico fns."} *uri*)
 (def ^{:dynamic true :doc "Datomic connection available to all datomico fns."} *connection*)
 (def ^{:dynamic true :doc "Datomic database value available to all datomico fns."} *db*)
-(def ^ {:dynamic true :doc "Determines whether to log transactions and queries."} *logging* false)
+(def ^{:dynamic true :doc "Determines whether to log transactions and queries."} *logging* false)
 
 ; from https://gist.github.com/3150938
 (defn wrap-datomic
