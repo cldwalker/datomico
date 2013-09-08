@@ -72,7 +72,7 @@ datomic's error message: 'Unable to resolve entity: :db.type/'..."
       :db.install/_attribute :db.part/db}
      (remove #(nil? (val %)))
      (into {}))))
-    
+
 (defn build-schema
   "Given a keyword namespace and a vector of vectors, creates a schema as
   described at http://docs.datomic.com/schema.html. Each subvector represents an
@@ -110,14 +110,11 @@ datomic's error message: 'Unable to resolve entity: :db.type/'..."
 (def expand-ref datomico.model/expand-ref)
 (def delete datomico.action/delete)
 
-; TODO: allow user to pass in which fns they want to create
 (defmacro create-model-fns
-  "Creates model fns that are scoped to the given model (keyword namespace). Creates the following
-  fns: create, update, delete-all, find-all and find-first."
-  [nsp]
-  `(do
-    (dm/create-model-fn :create ~nsp)
-    (dm/create-model-fn :find-first ~nsp)
-    (dm/create-model-fn :find-all ~nsp)
-    (dm/create-model-fn :delete-all ~nsp)
-    (dm/create-model-fn :update ~nsp)))
+  "Creates model fns that are scoped to the given model (keyword
+  namespace). Creates the following fns by default: create, update,
+  delete-all, find-all and find-first. A list of keywords representing
+  functions to create can optionally be provided."
+  [nsp & [fns]]
+  (let [fns (if (nil? fns) [:create :update :delete-all :find-all :find-first] fns)]
+    `(do ~@(map (fn [name] `(dm/create-model-fn ~name ~nsp)) fns))))
