@@ -113,7 +113,7 @@ datomic's error message: 'Unable to resolve entity: :db.type/'..."
 (defmacro create-model-fns
   "Creates model fns that are scoped to the given model (keyword
   namespace). Creates the following fns by default: create, update,
-  delete-all, find-all and find-first. A list of keywords representing
+  delete-all, find-all and find-first. A vector of keywords representing
   functions to create can optionally be provided."
   [nsp & [fns]]
   (let [fns (if (nil? fns) [:create :update :delete-all :find-all :find-first] fns)]
