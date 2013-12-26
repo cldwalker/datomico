@@ -96,7 +96,7 @@ Also ensures that only an entity belonging to this namespace is returned."
   (action/delete-value-tx id (keyword (name nsp) (name attr)) value))
 
 (defn delete-value
-  "Deletes entity value for give attribute and value."
+  "Deletes entity value for given attribute and value."
   [nsp id attr value]
   (db/transact! [(delete-value-tx nsp id attr value)]))
 
