@@ -1,3 +1,6 @@
+*NOTE*: This library has not been used in production for some time and has practices that
+I would no longer recommend e.g. some of the querying practices.
+
 ## Description
 
 Use datomic with intention revealing names. Ease of use and sticking to datomic's principles are
